@@ -1,6 +1,7 @@
 package com.lin.comlauncher.entity
 
 import android.graphics.Bitmap
+import androidx.compose.ui.unit.Dp
 
 class ApplicationInfo(
     var name:String?=null,
@@ -10,10 +11,11 @@ class ApplicationInfo(
     var posX:Int = 0,
     var posY:Int = 0,
     var width:Int = 0,
-    var height:Int = 0
+    var height:Int = 0,
+    var isDrag:Boolean = false
 )
 
 class AppInfoBaseBean(
-    var homeList:ArrayList<List<ApplicationInfo>> = ArrayList(),
+    var homeList:ArrayList<ArrayList<ApplicationInfo>> = ArrayList(),
     var toobarList:ArrayList<ApplicationInfo> = ArrayList()
 )

@@ -56,7 +56,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         ImmersionBar.with(this).transparentStatusBar().init();
-         LogUtils.e("densit=${Resources.getSystem().displayMetrics.density} densit2=${resources.displayMetrics.density}")
         initView()
         setContent {
             ComposeLauncherTheme {
