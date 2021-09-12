@@ -19,6 +19,7 @@ import java.lang.Exception
 
 
 object LauncherUtils {
+    var TOOL_BAR_NAME = arrayListOf<String>("com.android.contacts","com.android.camera","com.android.mms","com.android.browser")
     fun getCurrentWallPaper(mContext: Context):Bitmap{
         val wallpaperManager = WallpaperManager
             .getInstance(mContext)
@@ -37,5 +38,9 @@ object LauncherUtils {
             ex.printStackTrace()
         }
 
+    }
+
+    fun isToolBarApplication(packageName:String?):Boolean{
+       return  TOOL_BAR_NAME.contains(packageName)
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+    <item>
+        <color android:color="#cae9ec" />
+    </item>
+<!--    <item android:bottom="30dp">-->
+<!--        <bitmap-->
+<!--            android:gravity="bottom|center_horizontal"-->
+<!--            android:src="@drawable/wall_paper"/>-->
+<!--    </item>-->
+</layer-list>

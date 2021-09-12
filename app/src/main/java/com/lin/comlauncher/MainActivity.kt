@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -36,15 +37,20 @@ import com.lin.comlauncher.ui.theme.ComposeLauncherTheme
 import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
 import com.lin.comlauncher.util.LauncherUtils
+import com.lin.comlauncher.view.DesktopView
+import com.lin.comlauncher.view.InitView
+import com.lin.comlauncher.view.ToolBarView
 import com.lin.comlauncher.viewmodel.HomeViewModel
 
 class MainActivity : ComponentActivity() {
     private val homeViewModel by viewModels<HomeViewModel>()
     private var isLoadApp = false;
     var permissionManager = PermissionManager(101)
+    var startTime = System.currentTimeMillis()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         ImmersionBar.with(this).transparentStatusBar().init();
         initView()
         setContent {
@@ -78,7 +84,7 @@ fun Greeting(name: String) {
 @Composable
 fun DefaultPreview() {
     createView(homeViewModel = HomeViewModel()) {
-        Log.e("lin","test")
+        Log.e("linlog","test")
     }
 }
 
@@ -101,90 +107,15 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                     .fillMaxHeight()
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop)
-                if(applist.value?.size?:0==0){
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center) {
-                        Text(text = "初始化中...")
-                    }
+                if(applist.value?.homeList?.size?:0==0){
+                    InitView()
                 }else{
-                    Row(modifier = Modifier
-                        .width(width = width.dp)
-                        .height(height = height.dp)
-                        .verticalScroll(rememberScrollState())
-                        .horizontalScroll(
-                            state,
-                            flingBehavior = pagerFlingBehavior(
-                                state,
-                                (applist.value?.size ?: 0)
-                            )
-                        )
-                    ) {
-                        applist.value?.forEachIndexed { index, list ->
-                            Column(modifier = Modifier
-                                .width(width = width.dp)
-                                .height(height = height.dp)) {
-                                MyBasicColumn(){
-                                    list.forEach {
-                                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                                            modifier = Modifier
-                                                .size(it.width.dp, it.height.dp)
-                                                .offset(it.posX.dp, it.posY.dp)
-                                                .clickable {
-                                                    LauncherUtils.startApp(context,it )
-                                                }) {
-                                            it.icon?.let { icon->
-                                                Image(icon.asImageBitmap(), contentDescription = "",
-                                                    modifier = Modifier.size(52.dp,52.dp))
-
-                                            }
-                                            Text(text = it.name?:"",overflow = TextOverflow.Ellipsis,maxLines = 1,
-                                                fontSize = 14.sp,
-                                                modifier = Modifier.padding(4.dp,10.dp,4.dp,0.dp))
-                                        }
-
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    DesktopView(applist = applist)
+                    ToolBarView(applist = applist)
                 }
 
             }
         )
 
-    }
-}
-
-@Composable
-fun ChildView(message:String,onClick: () -> Unit) {
-    var resource = painterResource(id = R.drawable.aaa)
-    var padding = Dp(16f)
-    Card(
-        elevation = 4.dp, backgroundColor = Color.White,
-        modifier = Modifier.clip(shape = RoundedCornerShape(10.dp))
-    ) {
-        Row(
-            Modifier
-                .size(Dp.Unspecified, 140.dp)
-                .clickable(onClick = onClick)
-                .padding(padding)
-                .fillMaxWidth()
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.aaa),
-                modifier = Modifier
-                    .size(100.dp, 100.dp)
-                    .clip(CircleShape),
-                contentDescription = "test",
-                contentScale = ContentScale.Crop
-            )
-            Column(Modifier.offset(x = 10.dp)) {
-                Text(text = "hello $message")
-            }
-
-        }
     }
 }

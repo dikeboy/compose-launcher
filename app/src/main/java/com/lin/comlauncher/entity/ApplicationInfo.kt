@@ -12,3 +12,8 @@ class ApplicationInfo(
     var width:Int = 0,
     var height:Int = 0
 )
+
+class AppInfoBaseBean(
+    var homeList:ArrayList<List<ApplicationInfo>> = ArrayList(),
+    var toobarList:ArrayList<ApplicationInfo> = ArrayList()
+)

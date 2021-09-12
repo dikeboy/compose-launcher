@@ -14,9 +14,11 @@
         <!-- Customize your theme here. -->
     </style>
 
-    <style name="Theme.ComposeLauncher.NoActionBar">
+    <style name="Theme.ComposeLauncher.NoActionBar" >
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:windowBackground">@drawable/app_launch_screen</item>
+        <item name="android:windowFullscreen">true</item>
     </style>
 
     <style name="Theme.ComposeLauncher.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
