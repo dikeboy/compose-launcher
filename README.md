@@ -3,8 +3,6 @@ A android launcher write all with compose and kotlin
 
 For compose learning
 
-hope you can join with me
-
 
 It's simple now  and will be richer in the future
 
