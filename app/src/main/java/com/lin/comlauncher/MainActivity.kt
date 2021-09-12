@@ -2,8 +2,10 @@ package com.lin.comlauncher
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
@@ -36,7 +38,9 @@ import com.lin.comlauncher.common.PermissionManager
 import com.lin.comlauncher.ui.theme.ComposeLauncherTheme
 import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
+import com.lin.comlauncher.util.DisplayUtils
 import com.lin.comlauncher.util.LauncherUtils
+import com.lin.comlauncher.util.LogUtils
 import com.lin.comlauncher.view.DesktopView
 import com.lin.comlauncher.view.InitView
 import com.lin.comlauncher.view.ToolBarView
@@ -52,12 +56,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         ImmersionBar.with(this).transparentStatusBar().init();
+         LogUtils.e("densit=${Resources.getSystem().displayMetrics.density} densit2=${resources.displayMetrics.density}")
         initView()
         setContent {
             ComposeLauncherTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
 //                    SwipeableSample(homeViewModel)
+                    var height = resources.displayMetrics.heightPixels+ImmersionBar.getStatusBarHeight(this)
+                    LocalConfiguration.current.screenHeightDp = DisplayUtils.pxToDp(height)
                     createView(homeViewModel){
 
                     }
@@ -66,9 +73,10 @@ class MainActivity : ComponentActivity() {
         }
     }
     fun initView(){
+        window.navigationBarColor = android.graphics.Color.TRANSPARENT
         permissionManager.checkPermission(this,arrayOf(Manifest.permission.QUERY_ALL_PACKAGES)){
             var width = resources.displayMetrics.widthPixels
-            var height = resources.displayMetrics.heightPixels
+            var height = resources.displayMetrics.heightPixels+ImmersionBar.getStatusBarHeight(this)
             homeViewModel.loadApp(packageManager,width =width,height = height)
         }
     }
@@ -113,7 +121,6 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                     DesktopView(applist = applist)
                     ToolBarView(applist = applist)
                 }
-
             }
         )
 

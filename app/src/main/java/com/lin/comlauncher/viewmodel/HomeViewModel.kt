@@ -63,7 +63,7 @@ class HomeViewModel:ViewModel() {
                 if(LauncherUtils.isToolBarApplication(ai.pageName)){
                     ai.width = dpWidth/4;
                     ai.height = dpWidth/4;
-                    ai.posY = height-dpWidth/4-40
+                    ai.posY = height-dpWidth/4
                     ai.posX = mToolBarList.size%4*dpWidth/4
                     mToolBarList.add(ai)
                 }else{
