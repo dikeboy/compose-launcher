@@ -51,7 +51,6 @@ fun DesktopView(applist: State<AppInfoBaseBean?>){
         applist.value?.homeList?.forEachIndexed { index, list ->
             val applist = remember { mutableStateListOf<ApplicationInfo>() }
             applist.addAll(list)
-
             Column(modifier = Modifier
                 .width(width = width.dp)
                 .height(height = height.dp)) {
@@ -59,25 +58,20 @@ fun DesktopView(applist: State<AppInfoBaseBean?>){
                     applist.forEach {
                         var offsetX by remember { mutableStateOf(it.posX.dp) }
                         var offsetY by remember { mutableStateOf(it.posY.dp) }
-                        var offy = offsetX
-                        if(it.isDrag){
-                            LogUtils.e("offsetX= ${offsetX} offsetY=${offsetY}")
-                        }
+                        var dragX = offsetX
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
                                 .size(it.width.dp, it.height.dp)
-                                .offset(if(it.isDrag)offsetX else it.posX.dp, if(it.isDrag)offsetY else it.posY.dp)
-                                .pointerInput(Unit) {
+                                .offset(it.posX.dp,it.posY.dp)
+                                .pointerInput(it) {
                                     detectDragGestures(
                                         onDragStart={off->
                                             it.isDrag = true
+                                            LogUtils.e("drag app ${it.name}")
                                         },
                                         onDragEnd = {
                                             it.isDrag = false
-                                            it.posX = offsetX.value.toInt()
-//                                            it.posY = offsetY.value.toInt()
-                                            LogUtils.e("dragex=${it.posX} dragY=${it.posY}")
-                                            SortUtils.resetPos(applist)
+                                            SortUtils.resetPos(applist,it)
                                             offsetX = it.posX.dp
                                             offsetY = it.posY.dp
                                             LogUtils.e("dragex=${it.posX} dragY=${it.posY}")
@@ -85,6 +79,8 @@ fun DesktopView(applist: State<AppInfoBaseBean?>){
                                         }
                                     ) { change, dragAmount ->
                                         change.consumeAllChanges()
+                                        it.posX += dragAmount.x.toDp().value.toInt()
+                                        it.posY += dragAmount.y.toDp().value.toInt()
                                         offsetX += dragAmount.x.toDp()
                                         offsetY += dragAmount.y.toDp()
                                     }
@@ -107,9 +103,4 @@ fun DesktopView(applist: State<AppInfoBaseBean?>){
             }
         }
     }
-}
-
-@Composable
-fun dragEnd(){
-
 }
