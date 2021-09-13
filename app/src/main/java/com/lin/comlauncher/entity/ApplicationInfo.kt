@@ -12,10 +12,18 @@ class ApplicationInfo(
     var posY:Int = 0,
     var width:Int = 0,
     var height:Int = 0,
-    var isDrag:Boolean = false
+    var isDrag:Boolean = false,
+    var orignX:Int = 0,
+    var orignY:Int = 0
 )
 
 class AppInfoBaseBean(
     var homeList:ArrayList<ArrayList<ApplicationInfo>> = ArrayList(),
     var toobarList:ArrayList<ApplicationInfo> = ArrayList()
+)
+
+class AppPos(
+    var x:Int = 0,
+    var y:Int = 0,
+    var appName:String?=null
 )

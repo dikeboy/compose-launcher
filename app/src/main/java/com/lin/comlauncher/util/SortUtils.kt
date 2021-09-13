@@ -7,6 +7,12 @@ import com.lin.comlauncher.entity.ApplicationInfo
 object SortUtils {
     fun resetPos(list:SnapshotStateList<ApplicationInfo>,app:ApplicationInfo
     ){
+        list.forEach {
+            if (app == it)
+                return@forEach
+            it.orignX = it.posX
+            it.orignY = it.posY
+        }
         run outside@{
             var preY = 80
             list.forEach {
@@ -30,8 +36,8 @@ object SortUtils {
         })
 
         list.forEachIndexed { index, ai ->
-            ai.posX = (index%4)*ai.width
-            ai.posY = index/4*100+80
+            ai.orignX = (index%4)*ai.width
+            ai.orignY = index/4*100+80
 //            LogUtils.e("pos=${ai.posX} posY=${ai.posY} name=${ai.name}")
         }
     }
