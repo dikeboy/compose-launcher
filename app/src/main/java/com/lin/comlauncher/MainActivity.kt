@@ -14,6 +14,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.*
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -67,13 +69,15 @@ class MainActivity : ComponentActivity() {
                     createView(homeViewModel){
 
                     }
+//                    TestView()
                 }
             }
         }
     }
     fun initView(){
         window.navigationBarColor = android.graphics.Color.TRANSPARENT
-        permissionManager.checkPermission(this,arrayOf(Manifest.permission.QUERY_ALL_PACKAGES)){
+        permissionManager.checkPermission(this,arrayOf(Manifest.permission.QUERY_ALL_PACKAGES
+        ,Manifest.permission.VIBRATE)){
             var width = resources.displayMetrics.widthPixels
             var height = resources.displayMetrics.heightPixels+ImmersionBar.getStatusBarHeight(this)
             homeViewModel.loadApp(packageManager,width =width,height = height)
@@ -117,11 +121,33 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                 if(applist.value?.homeList?.size?:0==0){
                     InitView()
                 }else{
-                    DesktopView(applist = applist)
+                    DesktopView(applist = applist,viewModel = homeViewModel)
                     ToolBarView(applist = applist)
                 }
             }
         )
 
+    }
+}
+
+@Composable
+fun TestView(){
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val color = if (isPressed) Color.Blue else Color.Green
+
+    Column(modifier = Modifier.fillMaxHeight().clickable(
+        interactionSource = MutableInteractionSource(),indication=null){
+
+    }
+        .fillMaxWidth()
+        .offset(100.dp,200.dp)
+        .background(Color.White)
+        .padding(20.dp),
+        verticalArrangement= Arrangement.Center) {
+            Text(
+                "Button",
+                color = Color.Black
+            )
     }
 }

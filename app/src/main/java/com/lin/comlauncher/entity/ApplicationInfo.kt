@@ -16,7 +16,9 @@ class ApplicationInfo(
     var orignX:Int = 0,
     var orignY:Int = 0,
     var needMoveX:Int = 0,
-    var needMoveY:Int = 0
+    var needMoveY:Int = 0,
+    var posFx:Float = 0f,
+    var posFy:Float = 0f,
 )
 
 class AppInfoBaseBean(
@@ -28,4 +30,10 @@ data class AppPos(
     var x:Int = 0,
     var y:Int = 0,
     var appName:String?=null
+)
+
+data class CellBean(
+    var x:Int = 0,
+    var y:Int = 0,
+    var page:Int = 0
 )

@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.lin.comlauncher.entity.AppInfoBaseBean
 import com.lin.comlauncher.util.DisplayUtils
+import com.lin.comlauncher.util.LauncherConfig
 import com.lin.comlauncher.util.LauncherUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,6 +22,8 @@ import kotlinx.coroutines.launch
 class HomeViewModel:ViewModel() {
     public var loadInfoLiveData:MutableLiveData<AppInfoBaseBean> = MutableLiveData()
     val appLiveData: LiveData<AppInfoBaseBean> = loadInfoLiveData
+    var lastSelPos = 0
+    var lastSelTime = 0
 
     fun loadApp(pm:PackageManager,width:Int,height:Int){
         viewModelScope.launch(Dispatchers.IO){
@@ -68,9 +71,9 @@ class HomeViewModel:ViewModel() {
                     mToolBarList.add(ai)
                 }else{
                     ai.width = dpWidth/4;
-                    ai.height = 100
+                    ai.height = LauncherConfig.HOME_CELL_HEIGHT
                     ai.posX = (index%4)*dpWidth/4
-                    ai.posY = index/4*100+80
+                    ai.posY = index/4*LauncherConfig.HOME_CELL_HEIGHT+LauncherConfig.DEFAULT_TOP_PADDING
                     cacheList.add(ai)
                     if(index==19){
                         cacheList = ArrayList()
@@ -80,6 +83,7 @@ class HomeViewModel:ViewModel() {
                     }
                     index++;
                 }
+                LauncherConfig.HOME_CELL_WIDTH = ai.width
 
             }
             Log.e("linlog","loadA==${mlist.size} toolbar=${mToolBarList.size}")

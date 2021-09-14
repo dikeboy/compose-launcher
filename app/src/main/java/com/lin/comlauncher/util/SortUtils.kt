@@ -14,7 +14,7 @@ object SortUtils {
             it.orignY = it.posY
         }
         run outside@{
-            var preY = 80
+            var preY = LauncherConfig.DEFAULT_TOP_PADDING
             list.forEach {
                 if(app==it)
                     return@forEach
@@ -37,10 +37,10 @@ object SortUtils {
 
         list.forEachIndexed { index, ai ->
             ai.orignX = (index%4)*ai.width
-            ai.orignY = index/4*100+80
+            ai.orignY = index/4*LauncherConfig.HOME_CELL_HEIGHT+LauncherConfig.DEFAULT_TOP_PADDING
             ai.needMoveX = ai.posX-ai.orignX
             ai.needMoveY = ai.posY-ai.orignY
-            LogUtils.e("pos=${ai.posX} posY=${ai.posY} desx=${ai.orignX} desy=${ai.orignY} name=${ai.name}")
+//            LogUtils.e("pos=${ai.posX} posY=${ai.posY} desx=${ai.orignX} desy=${ai.orignY} name=${ai.name}")
         }
     }
 }

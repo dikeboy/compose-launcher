@@ -12,9 +12,12 @@ import androidx.core.content.ContextCompat.startActivity
 import android.content.ComponentName
 
 import android.content.Intent
+import android.os.VibrationEffect
+import android.os.Vibrator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import com.lin.comlauncher.entity.CellBean
 import java.lang.Exception
 
 
@@ -39,8 +42,22 @@ object LauncherUtils {
         }
 
     }
+    fun vibrator(context:Context){
+        (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator)?.let {
+            it.vibrate(50)
+        }
+    }
 
     fun isToolBarApplication(packageName:String?):Boolean{
        return  TOOL_BAR_NAME.contains(packageName)
+    }
+
+    fun findCurrentCell(posX:Int,posY:Int): CellBean?{
+        if(posY<LauncherConfig.DEFAULT_TOP_PADDING){
+            return null
+        }
+        var cellX = posX/LauncherConfig.HOME_CELL_WIDTH
+        var cellY = (posY-LauncherConfig.DEFAULT_TOP_PADDING)/LauncherConfig.HOME_CELL_HEIGHT
+        return CellBean(cellX,cellY)
     }
 }
