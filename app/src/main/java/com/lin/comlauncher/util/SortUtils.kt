@@ -38,7 +38,9 @@ object SortUtils {
         list.forEachIndexed { index, ai ->
             ai.orignX = (index%4)*ai.width
             ai.orignY = index/4*100+80
-//            LogUtils.e("pos=${ai.posX} posY=${ai.posY} name=${ai.name}")
+            ai.needMoveX = ai.posX-ai.orignX
+            ai.needMoveY = ai.posY-ai.orignY
+            LogUtils.e("pos=${ai.posX} posY=${ai.posY} desx=${ai.orignX} desy=${ai.orignY} name=${ai.name}")
         }
     }
 }

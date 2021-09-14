@@ -14,7 +14,9 @@ class ApplicationInfo(
     var height:Int = 0,
     var isDrag:Boolean = false,
     var orignX:Int = 0,
-    var orignY:Int = 0
+    var orignY:Int = 0,
+    var needMoveX:Int = 0,
+    var needMoveY:Int = 0
 )
 
 class AppInfoBaseBean(
@@ -22,7 +24,7 @@ class AppInfoBaseBean(
     var toobarList:ArrayList<ApplicationInfo> = ArrayList()
 )
 
-class AppPos(
+data class AppPos(
     var x:Int = 0,
     var y:Int = 0,
     var appName:String?=null

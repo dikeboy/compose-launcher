@@ -31,6 +31,7 @@ import com.lin.comlauncher.util.LogUtils
 import com.lin.comlauncher.util.SortUtils
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
@@ -64,7 +65,7 @@ fun DesktopView(applist: State<AppInfoBaseBean?>){
                 .width(width = width.dp)
                 .height(height = height.dp)) {
                 MyBasicColumn(){
-
+                    var animFinish by remember { mutableStateOf(1f) }
                     applist.forEach {
                         var offsetX by remember { mutableStateOf(it.posX.dp) }
                         var offsetY by remember { mutableStateOf(it.posY.dp) }
@@ -90,9 +91,11 @@ fun DesktopView(applist: State<AppInfoBaseBean?>){
                                             SortUtils.resetPos(applist,it)
                                             offsetX = it.posX.dp
                                             offsetY = it.posY.dp
-                                            LogUtils.e("dragex=${it.posX} dragY=${it.posY}")
+                                            var xscale = 100
+                                            var yscale = 100
+                                            LogUtils.e("dragex=${xscale} dragY=${yscale} pack=${it.pageName}")
                                             coroutineScope.launch {
-                                                applist.forEach { appInfo->
+                                                    var appInfo= it
                                                     animate(
                                                         typeConverter =  TwoWayConverter(
                                                             convertToVector = { size: AppPos ->
@@ -102,17 +105,21 @@ fun DesktopView(applist: State<AppInfoBaseBean?>){
                                                                 AppPos(vector.v1.toInt(), vector.v2.toInt())
                                                             }
                                                         ),
-                                                        initialValue = AppPos(appInfo.posX,appInfo.posY)
-                                                        ,targetValue = AppPos(appInfo.orignX,appInfo.orignY)
+                                                        initialValue = AppPos(0,0)
+                                                        ,targetValue = AppPos(100,100)
                                                         ,initialVelocity= AppPos(0,0)
                                                         ,animationSpec =  tween(300),
                                                     ){appPos,velocity->
-                                                        appInfo.posX = appPos.x
-                                                        appInfo.posY = appPos.y
-                                                        offsetX = appInfo.posX.dp
-                                                        offsetY = appInfo.posY.dp
+                                                        applist.forEach { appInfo->
+                                                            appInfo.posX=
+                                                                appInfo.orignX-(xscale-appPos.x)*appInfo.needMoveX/xscale;
+                                                            appInfo.posY=
+                                                                appInfo.orignY-(yscale-appPos.y)*appInfo.needMoveY/yscale;
+                                                        }
+                                                        offsetX = appPos.x.dp
+                                                        offsetY = appPos.y.dp
+                                                        LogUtils.e("apppos x=${appPos}")
                                                     }
-                                                }
                                             }
                                         }
                                     ) { change, dragAmount ->
