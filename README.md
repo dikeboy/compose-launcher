@@ -1,5 +1,5 @@
 # comp-launcher
-A android launcher write all with compose and kotlin
+A android launcher write all with jetpack compose and kotlin
 
 For compose learning
 
