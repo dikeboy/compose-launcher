@@ -77,11 +77,12 @@ object SortUtils {
     }
 
     fun findCurrentCell(posX: Int, posY: Int): Int {
-        if (posY < LauncherConfig.DEFAULT_TOP_PADDING) {
+        var padding = 10
+        if (posY < LauncherConfig.DEFAULT_TOP_PADDING-padding) {
             return -1
         }
-        var cellX = posX / LauncherConfig.HOME_CELL_WIDTH
-        var cellY = (posY - LauncherConfig.DEFAULT_TOP_PADDING) / LauncherConfig.HOME_CELL_HEIGHT
+        var cellX = (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
+        var cellY = (posY - LauncherConfig.DEFAULT_TOP_PADDING+padding) / LauncherConfig.HOME_CELL_HEIGHT
         return cellX + cellY * 4
     }
 
