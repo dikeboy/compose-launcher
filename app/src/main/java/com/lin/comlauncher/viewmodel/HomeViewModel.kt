@@ -81,6 +81,7 @@ class HomeViewModel:ViewModel() {
                     if(index==0){
                         mlist.add(cacheList)
                     }
+                    ai.cellPos = index
                     index++;
                 }
                 LauncherConfig.HOME_CELL_WIDTH = ai.width
