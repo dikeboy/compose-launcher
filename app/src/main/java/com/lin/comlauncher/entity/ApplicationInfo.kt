@@ -19,6 +19,7 @@ class ApplicationInfo(
     var needMoveY:Int = 0,
     var posFx:Float = 0f,
     var posFy:Float = 0f,
+    var cellPos:Int = 0
 )
 
 class AppInfoBaseBean(
