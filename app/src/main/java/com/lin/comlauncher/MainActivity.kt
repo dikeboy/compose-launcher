@@ -121,7 +121,7 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                 if(applist.value?.homeList?.size?:0==0){
                     InitView()
                 }else{
-                    DesktopView(applist = applist,viewModel = homeViewModel)
+                    DesktopView(lists = applist,viewModel = homeViewModel)
                     ToolBarView(applist = applist)
                 }
             }
