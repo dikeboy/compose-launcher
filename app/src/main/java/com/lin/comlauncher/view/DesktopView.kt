@@ -73,7 +73,7 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                     .height(height = height.dp)
             ) {
                 MyBasicColumn() {
-                    var animFinish by remember { mutableStateOf(1f) }
+                    var animFinish by remember { mutableStateOf(false) }
                     applist.forEach {
                         var offsetX by remember { mutableStateOf(it.posX.dp) }
                         var offsetY by remember { mutableStateOf(it.posY.dp) }
@@ -96,14 +96,70 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                             it.posFy = it.posY.dp.toPx()
                                             LauncherUtils.vibrator(context = context)
                                             LogUtils.e("drag app ${it.name}")
+
+                                            coroutineScope.launch {
+                                                var preCell = SortUtils.findCurrentCell(it.posX,it.posY)
+
+                                                while (it.isDrag){
+                                                    var preX= it.posX
+                                                    var preY = it.posY
+                                                    delay(500)
+                                                    var curX = it.posX
+                                                    var curY = it.posY
+                                                    run {
+                                                        if (Math.abs(preX - curX) < 10 && Math.abs(preY - curY) < 10 && !animFinish) {
+                                                            var cellIndex = SortUtils.findCurrentCell(curX,curY)
+                                                            if (cellIndex==preCell)
+                                                                return@run
+                                                            preCell = cellIndex
+                                                             LogUtils.e("disx =${preX - curX}  disY=${preY - curY}")
+                                                            SortUtils.resetChoosePos(applist, it)
+                                                            var xscale = 100
+                                                            var yscale = 100
+                                                            animFinish = true
+                                                            animate(
+                                                                typeConverter = TwoWayConverter(
+                                                                    convertToVector = { size: AppPos ->
+                                                                        AnimationVector2D(
+                                                                            size.x.toFloat(),
+                                                                            size.y.toFloat()
+                                                                        )
+                                                                    },
+                                                                    convertFromVector = { vector: AnimationVector2D ->
+                                                                        AppPos(
+                                                                            vector.v1.toInt(),
+                                                                            vector.v2.toInt()
+                                                                        )
+                                                                    }
+                                                                ),
+                                                                initialValue = AppPos(0, 0),
+                                                                targetValue = AppPos(100, 100),
+                                                                initialVelocity = AppPos(0, 0),
+                                                                animationSpec = tween(300),
+                                                            ) { appPos, velocity ->
+                                                                applist.forEach { appInfo ->
+                                                                    if (appInfo == it)
+                                                                        return@forEach
+                                                                    appInfo.posX =
+                                                                        appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
+                                                                    appInfo.posY =
+                                                                        appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
+                                                                }
+                                                                offsetX = appPos.x.dp
+                                                                offsetY = appPos.y.dp
+                                                            LogUtils.e("apppos x=${appPos}")
+                                                            }
+                                                            animFinish = false
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         },
                                         onDragEnd = {
                                             it.isDrag = false
-                                            SortUtils.resetPos(applist, it)
+                                            SortUtils.calculPos(applist, it)
                                             offsetX = it.posX.dp
                                             offsetY = it.posY.dp
-                                            var xscale = 100
-                                            var yscale = 100
                                             coroutineScope.launch {
                                                 animate(
                                                     typeConverter = TwoWayConverter(
@@ -120,20 +176,15 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                                             )
                                                         }
                                                     ),
-                                                    initialValue = AppPos(0, 0),
-                                                    targetValue = AppPos(100, 100),
+                                                    initialValue = AppPos(it.posX,it.posY),
+                                                    targetValue = AppPos(it.orignX,it.orignY),
                                                     initialVelocity = AppPos(0, 0),
                                                     animationSpec = tween(300),
                                                 ) { appPos, velocity ->
-                                                    applist.forEach { appInfo ->
-                                                        appInfo.posX =
-                                                            appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
-                                                        appInfo.posY =
-                                                            appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
-                                                    }
+                                                    it.posX = appPos.x
+                                                    it.posY = appPos.y
                                                     offsetX = appPos.x.dp
                                                     offsetY = appPos.y.dp
-                                                    LogUtils.e("apppos x=${appPos}")
                                                 }
                                             }
                                         }
@@ -141,7 +192,7 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                         change.consumeAllChanges()
                                         it.posFx += dragAmount.x
                                         it.posFy += dragAmount.y
-                                        LogUtils.e("offx=${change.position.x} offy=${change.position}")
+//                                        LogUtils.e("offx=${change.position.x} offy=${change.position}")
                                         it.posX = it.posFx.toDp().value.toInt()
                                         it.posY = it.posFy.toDp().value.toInt()
                                         offsetX += dragAmount.x.toDp()
