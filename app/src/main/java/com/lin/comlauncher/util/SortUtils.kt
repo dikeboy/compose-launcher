@@ -10,6 +10,10 @@ object SortUtils {
         list: ArrayList<ApplicationInfo>, app: ApplicationInfo
     ) {
         var currentPos = findCurrentCell(app.posX, app.posY)
+        if (currentPos < 0)
+            currentPos = 0
+        else if (currentPos >= 20)
+            currentPos = 19
         var isEmpty = true
         list.forEach {
             if (it.cellPos == currentPos) {

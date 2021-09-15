@@ -40,6 +40,7 @@ class HomeViewModel:ViewModel() {
         }
         viewModelScope.launch(Dispatchers.IO){
             var dpWidth = DisplayUtils.pxToDp(width)
+            var dpHeight = DisplayUtils.pxToDp(height)
             val intent = Intent(Intent.ACTION_MAIN, null)
             intent.addCategory(Intent.CATEGORY_LAUNCHER)
             var appInfoBaseBean = AppInfoBaseBean()
@@ -78,7 +79,7 @@ class HomeViewModel:ViewModel() {
                 if(LauncherUtils.isToolBarApplication(ai.pageName)){
                     ai.width = dpWidth/4;
                     ai.height = dpWidth/4;
-                    ai.posY = height-dpWidth/4
+                    ai.posY = dpHeight-dpWidth/4
                     ai.posX = mToolBarList.size%4*dpWidth/4
                     mToolBarList.add(ai)
                 }else{

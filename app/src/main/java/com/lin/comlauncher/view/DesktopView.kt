@@ -105,7 +105,7 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                                     var preX= it.posX
                                                     var preY = it.posY
 
-                                                    delay(500)
+                                                    delay(300)
                                                     var curX = it.posX
                                                     var curY = it.posY
                                                     run {
