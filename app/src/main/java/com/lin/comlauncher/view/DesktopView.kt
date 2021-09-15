@@ -27,6 +27,7 @@ import com.lin.comlauncher.entity.AppPos
 import com.lin.comlauncher.entity.ApplicationInfo
 import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
+import com.lin.comlauncher.util.DoTranslateAnim
 import com.lin.comlauncher.util.LauncherUtils
 import com.lin.comlauncher.util.LogUtils
 import com.lin.comlauncher.util.SortUtils
@@ -103,7 +104,6 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                                 while (it.isDrag){
                                                     var preX= it.posX
                                                     var preY = it.posY
-                                                    LogUtils.e("i am drag x=${it.posX} y=${it.posY}")
 
                                                     delay(500)
                                                     var curX = it.posX
@@ -121,26 +121,8 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                                             var xscale = 100
                                                             var yscale = 100
                                                             animFinish = true
-                                                            animate(
-                                                                typeConverter = TwoWayConverter(
-                                                                    convertToVector = { size: AppPos ->
-                                                                        AnimationVector2D(
-                                                                            size.x.toFloat(),
-                                                                            size.y.toFloat()
-                                                                        )
-                                                                    },
-                                                                    convertFromVector = { vector: AnimationVector2D ->
-                                                                        AppPos(
-                                                                            vector.v1.toInt(),
-                                                                            vector.v2.toInt()
-                                                                        )
-                                                                    }
-                                                                ),
-                                                                initialValue = AppPos(0, 0),
-                                                                targetValue = AppPos(100, 100),
-                                                                initialVelocity = AppPos(0, 0),
-                                                                animationSpec = tween(300),
-                                                            ) { appPos, velocity ->
+                                                            DoTranslateAnim( AppPos(0,0),AppPos(100,100),300) {
+                                                                    appPos, velocity ->
                                                                 applist.forEach { appInfo ->
                                                                     if (appInfo == it)
                                                                         return@forEach
@@ -168,32 +150,12 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                             offsetY = it.posY.dp
                                             LogUtils.e("dragEnd ")
                                             coroutineScope.launch {
-                                                animate(
-                                                    typeConverter = TwoWayConverter(
-                                                        convertToVector = { size: AppPos ->
-                                                            AnimationVector2D(
-                                                                size.x.toFloat(),
-                                                                size.y.toFloat()
-                                                            )
-                                                        },
-                                                        convertFromVector = { vector: AnimationVector2D ->
-                                                            AppPos(
-                                                                vector.v1.toInt(),
-                                                                vector.v2.toInt()
-                                                            )
-                                                        }
-                                                    ),
-                                                    initialValue = AppPos(it.posX,it.posY),
-                                                    targetValue = AppPos(it.orignX,it.orignY),
-                                                    initialVelocity = AppPos(0, 0),
-                                                    animationSpec = tween(300),
-                                                ) { appPos, velocity ->
+                                                DoTranslateAnim( AppPos(it.posX,it.posY),AppPos(it.orignX,it.orignY),300)
+                                                {appPos, velocity ->
                                                     it.posX = appPos.x
                                                     it.posY = appPos.y
                                                     offsetX = appPos.x.dp
                                                     offsetY = appPos.y.dp
-//                                                    LogUtils.e("apppos x=${appPos}")
-
                                                 }
                                             }
                                         },

@@ -44,7 +44,7 @@ object LauncherUtils {
     }
     fun vibrator(context:Context){
         (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator)?.let {
-            it.vibrate(50)
+            it.vibrate(70)
         }
     }
 

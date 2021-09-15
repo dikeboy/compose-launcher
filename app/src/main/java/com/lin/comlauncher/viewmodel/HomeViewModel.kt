@@ -16,16 +16,28 @@ import com.lin.comlauncher.util.DisplayUtils
 import com.lin.comlauncher.util.LauncherConfig
 import com.lin.comlauncher.util.LauncherUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
 import kotlinx.coroutines.launch
 
 
 class HomeViewModel:ViewModel() {
     public var loadInfoLiveData:MutableLiveData<AppInfoBaseBean> = MutableLiveData()
+    val channel = Channel<Int>(UNLIMITED)
+
     val appLiveData: LiveData<AppInfoBaseBean> = loadInfoLiveData
     var lastSelPos = 0
     var lastSelTime = 0
 
+    suspend fun sendData(value:Int){
+        channel.send(value)
+    }
+
     fun loadApp(pm:PackageManager,width:Int,height:Int){
+        viewModelScope.launch {
+            var data = channel.receive()
+            print(data)
+        }
         viewModelScope.launch(Dispatchers.IO){
             var dpWidth = DisplayUtils.pxToDp(width)
             val intent = Intent(Intent.ACTION_MAIN, null)

@@ -43,6 +43,8 @@ object SortUtils {
 
         var currenPos = findCurrentCell(app.posX, app.posY)
         var prePos = findCurrentCell(app.orignX,app.orignY)
+        if(currenPos==prePos)
+            return
         LogUtils.e("currentPos=$currenPos")
         if (currenPos < 0)
             currenPos = 0
@@ -52,20 +54,25 @@ object SortUtils {
 //        list.add(currenPos, app)
 
         app.cellPos = currenPos
-        list.forEachIndexed { pos, ai ->
-            if (ai == app)
-                return@forEachIndexed
-            var index = if(ai.cellPos>prePos) ai.cellPos-1 else ai.cellPos
-            if(ai.cellPos>currenPos){
-                index = ai.cellPos
+        var mIndex = 0
+        list.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
+            var index =if(ai==app)
+                currenPos
+            else if(currenPos<prePos){
+                if(mIndex<currenPos) mIndex else mIndex+1
+            }else{
+                if(mIndex>=currenPos) mIndex+1 else mIndex
             }
+            LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
+
             ai.orignX = (index % 4) * ai.width
-            ai.orignY = index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
+            ai.orignY =
+                index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
             ai.needMoveX = ai.posX - ai.orignX
             ai.needMoveY = ai.posY - ai.orignY
             ai.cellPos = index
-            index++
-//            LogUtils.e("pos=${ai.posX} posY=${ai.posY} desx=${ai.orignX} desy=${ai.orignY} name=${ai.name}")
+            if(ai!=app)
+                mIndex++;
         }
     }
 
