@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 @Composable
-fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
+fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
     LogUtils.e("load")
@@ -46,7 +46,7 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
     var context = LocalContext.current
 
     val coroutineScope = rememberCoroutineScope()
-
+    val coroutineAnimScope = rememberCoroutineScope()
     Row(
         modifier = Modifier
             .width(width = width.dp)
@@ -56,17 +56,17 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                 state,
                 flingBehavior = pagerFlingBehavior(
                     state,
-                    (applist.value?.homeList?.size ?: 0)
+                    (lists.value?.homeList?.size ?: 0)
                 )
             )
     ) {
 
-        applist.value?.homeList?.forEachIndexed { index, list ->
-            val applist = remember { mutableStateListOf<ApplicationInfo>() }
-            var lastSelPos = remember {
-                mutableStateOf(0)
-            }
-            applist.addAll(list)
+        lists.value?.homeList?.forEachIndexed { index, applist ->
+//            val applist = remember { mutableStateListOf<ApplicationInfo>() }
+//            var lastSelPos = remember {
+//                mutableStateOf(0)
+//            }
+//            applist.addAll(list)
             Column(
                 modifier = Modifier
                     .width(width = width.dp)
@@ -97,12 +97,14 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                             LauncherUtils.vibrator(context = context)
                                             LogUtils.e("drag app ${it.name}")
 
-                                            coroutineScope.launch {
+                                            coroutineAnimScope.launch {
                                                 var preCell = SortUtils.findCurrentCell(it.posX,it.posY)
 
                                                 while (it.isDrag){
                                                     var preX= it.posX
                                                     var preY = it.posY
+                                                    LogUtils.e("i am drag x=${it.posX} y=${it.posY}")
+
                                                     delay(500)
                                                     var curX = it.posX
                                                     var curY = it.posY
@@ -112,7 +114,9 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                                             if (cellIndex==preCell)
                                                                 return@run
                                                             preCell = cellIndex
-                                                             LogUtils.e("disx =${preX - curX}  disY=${preY - curY}")
+                                                             LogUtils.e("disx =${preX - curX}  disY=${preY - curY} " +
+                                                                     "cellIndex=${cellIndex} posX=${it.posX} " +
+                                                                     "posY=${it.posY}")
                                                             SortUtils.resetChoosePos(applist, it)
                                                             var xscale = 100
                                                             var yscale = 100
@@ -147,8 +151,10 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                                                 }
                                                                 offsetX = appPos.x.dp
                                                                 offsetY = appPos.y.dp
-                                                            LogUtils.e("apppos x=${appPos}")
                                                             }
+                                                            LogUtils.e("disx2 =${preX - curX}  disY2=${preY - curY} " +
+                                                                    "cellIndex=${cellIndex} posX=${it.posX} " +
+                                                                    "posY=${it.posY}")
                                                             animFinish = false
                                                         }
                                                     }
@@ -160,6 +166,7 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                             SortUtils.calculPos(applist, it)
                                             offsetX = it.posX.dp
                                             offsetY = it.posY.dp
+                                            LogUtils.e("dragEnd ")
                                             coroutineScope.launch {
                                                 animate(
                                                     typeConverter = TwoWayConverter(
@@ -185,14 +192,21 @@ fun DesktopView(applist: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                                                     it.posY = appPos.y
                                                     offsetX = appPos.x.dp
                                                     offsetY = appPos.y.dp
+//                                                    LogUtils.e("apppos x=${appPos}")
+
                                                 }
                                             }
+                                        },
+                                        onDragCancel = {
+                                            it.isDrag = false
+                                            LogUtils.e("drag cancle")
+
                                         }
                                     ) { change, dragAmount ->
                                         change.consumeAllChanges()
                                         it.posFx += dragAmount.x
                                         it.posFy += dragAmount.y
-//                                        LogUtils.e("offx=${change.position.x} offy=${change.position}")
+//                                        LogUtils.e("offx=${ it.posFx.toDp()} offy=${it.posFy.toDp()}")
                                         it.posX = it.posFx.toDp().value.toInt()
                                         it.posY = it.posFy.toDp().value.toInt()
                                         offsetX += dragAmount.x.toDp()
