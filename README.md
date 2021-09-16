@@ -1,7 +1,7 @@
 # comp-launcher
 A android launcher write all with jetpack compose and kotlin
 
-For compose learning
+animation pagging. state
 
 
 It's simple now  and will be richer in the future
