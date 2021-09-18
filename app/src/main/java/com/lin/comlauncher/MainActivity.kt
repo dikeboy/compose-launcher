@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.res.Resources
 import android.graphics.Bitmap
+import android.os.Build
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
@@ -76,12 +77,25 @@ class MainActivity : ComponentActivity() {
     }
     fun initView(){
         window.navigationBarColor = android.graphics.Color.TRANSPARENT
-        permissionManager.checkPermission(this,arrayOf(Manifest.permission.QUERY_ALL_PACKAGES
-        ,Manifest.permission.VIBRATE)){
+
+        var arrayPermission =if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                 arrayOf(Manifest.permission.QUERY_ALL_PACKAGES,Manifest.permission.VIBRATE)
+            else arrayOf(Manifest.permission.VIBRATE)
+        permissionManager.checkPermission(this,arrayPermission){
             var width = resources.displayMetrics.widthPixels
             var height = resources.displayMetrics.heightPixels+ImmersionBar.getStatusBarHeight(this)
             homeViewModel.loadApp(packageManager,width =width,height = height)
         }
+
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        permissionManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 }
 

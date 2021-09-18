@@ -34,10 +34,7 @@ class HomeViewModel:ViewModel() {
     }
 
     fun loadApp(pm:PackageManager,width:Int,height:Int){
-        viewModelScope.launch {
-            var data = channel.receive()
-            print(data)
-        }
+
         viewModelScope.launch(Dispatchers.IO){
             var dpWidth = DisplayUtils.pxToDp(width)
             var dpHeight = DisplayUtils.pxToDp(height)
