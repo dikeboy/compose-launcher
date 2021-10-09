@@ -65,7 +65,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
 //                    SwipeableSample(homeViewModel)
-                    var height = resources.displayMetrics.heightPixels+ImmersionBar.getStatusBarHeight(this)
+                    var height = DisplayUtils.getScreenHeightCanUse(this)+ImmersionBar.getStatusBarHeight(this)
                     LocalConfiguration.current.screenHeightDp = DisplayUtils.pxToDp(height)
                     createView(homeViewModel){
 
