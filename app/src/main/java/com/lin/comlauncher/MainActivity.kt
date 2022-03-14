@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,18 +37,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.Observer
 import com.gyf.immersionbar.ImmersionBar
 import com.lin.comlauncher.common.PermissionManager
+import com.lin.comlauncher.entity.ApplicationInfo
 import com.lin.comlauncher.ui.theme.ComposeLauncherTheme
 import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
 import com.lin.comlauncher.util.DisplayUtils
+import com.lin.comlauncher.util.LauncherConfig
 import com.lin.comlauncher.util.LauncherUtils
 import com.lin.comlauncher.util.LogUtils
 import com.lin.comlauncher.view.DesktopView
 import com.lin.comlauncher.view.InitView
 import com.lin.comlauncher.view.ToolBarView
 import com.lin.comlauncher.viewmodel.HomeViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     private val homeViewModel by viewModels<HomeViewModel>()
@@ -62,11 +67,11 @@ class MainActivity : ComponentActivity() {
         initView()
         setContent {
             ComposeLauncherTheme {
-                // A surface container using the 'background' color from the theme
                 Surface(color = MaterialTheme.colors.background) {
 //                    SwipeableSample(homeViewModel)
                     var height = DisplayUtils.getScreenHeightCanUse(this)+ImmersionBar.getStatusBarHeight(this)
                     LocalConfiguration.current.screenHeightDp = DisplayUtils.pxToDp(height)
+
                     createView(homeViewModel){
 
                     }
@@ -83,7 +88,8 @@ class MainActivity : ComponentActivity() {
             else arrayOf(Manifest.permission.VIBRATE)
         permissionManager.checkPermission(this,arrayPermission){
             var width = resources.displayMetrics.widthPixels
-            var height = resources.displayMetrics.heightPixels+ImmersionBar.getStatusBarHeight(this)
+            var height = LauncherUtils.getScreenHeight3(this)
+//            var height = resources.displayMetrics.heightPixels+ImmersionBar.getStatusBarHeight(this)
             homeViewModel.loadApp(packageManager,width =width,height = height)
         }
 
@@ -99,12 +105,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
 @Preview(showBackground = true, backgroundColor = 0x40000000)
 @Composable
 fun DefaultPreview() {
@@ -116,11 +116,10 @@ fun DefaultPreview() {
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
-    var list = mutableListOf<String>()
-    for (i in 0..10)
-        list.add("$i")
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
+    LauncherConfig.HOME_WIDTH = width;
+    LauncherConfig.HOME_HEIGHT = height;
     var applist = homeViewModel.appLiveData.observeAsState()
 
     val state = rememberScrollState()
@@ -132,12 +131,17 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                     .fillMaxHeight()
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop)
+
+                LogUtils.e("initview finish ${applist.value?.homeList?.size}");
+
                 if(applist.value?.homeList?.size?:0==0){
-                    InitView()
+                    InitView(applist)
                 }else{
                     DesktopView(lists = applist,viewModel = homeViewModel)
                     ToolBarView(applist = applist)
                 }
+
+
             }
         )
 
@@ -150,12 +154,15 @@ fun TestView(){
     val isPressed by interactionSource.collectIsPressedAsState()
     val color = if (isPressed) Color.Blue else Color.Green
 
-    Column(modifier = Modifier.fillMaxHeight().clickable(
-        interactionSource = MutableInteractionSource(),indication=null){
+    Column(modifier = Modifier
+        .fillMaxHeight()
+        .clickable(
+            interactionSource = MutableInteractionSource(), indication = null
+        ) {
 
-    }
+        }
         .fillMaxWidth()
-        .offset(100.dp,200.dp)
+        .offset(100.dp, 200.dp)
         .background(Color.White)
         .padding(20.dp),
         verticalArrangement= Arrangement.Center) {

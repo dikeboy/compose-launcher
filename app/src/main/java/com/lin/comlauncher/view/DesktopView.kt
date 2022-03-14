@@ -42,7 +42,6 @@ import kotlin.coroutines.CoroutineContext
 fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
-    LogUtils.e("load")
     val state = rememberScrollState()
     var context = LocalContext.current
 

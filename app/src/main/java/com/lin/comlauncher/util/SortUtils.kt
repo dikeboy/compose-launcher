@@ -1,6 +1,7 @@
 package com.lin.comlauncher.util
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.lin.comlauncher.entity.ApplicationInfo
 import com.lin.comlauncher.entity.CellBean
@@ -85,10 +86,19 @@ object SortUtils {
         if (posY < LauncherConfig.DEFAULT_TOP_PADDING-padding) {
             return -1
         }
+        if(posY>=LauncherConfig.HOME_TOOLBAR_START){
+           var pos =  (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
+            return pos - 100;
+        }
+        if(posY>LauncherConfig.HOME_HEIGHT-LauncherConfig.HOME_WIDTH/4){
+            var cellX = (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
+            return cellX+100;
+        }
         var cellX = (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
         var cellY = (posY - LauncherConfig.DEFAULT_TOP_PADDING+padding) / LauncherConfig.HOME_CELL_HEIGHT
         return cellX + cellY * 4
     }
+
 
 
 }

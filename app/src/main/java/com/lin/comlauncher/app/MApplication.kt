@@ -6,6 +6,5 @@ import android.util.Log
 class MApplication:Application() {
     override fun onCreate() {
         super.onCreate()
-        Log.e("linlog","initTime = ${System.currentTimeMillis()%10000}")
     }
 }

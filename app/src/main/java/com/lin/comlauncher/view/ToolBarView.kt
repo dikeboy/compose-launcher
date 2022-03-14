@@ -64,7 +64,7 @@ fun ToolBarView(applist: State<AppInfoBaseBean?>) {
                                     it.posFx = it.posX.dp.toPx()
                                     it.posFy = it.posY.dp.toPx()
                                     LauncherUtils.vibrator(context = context)
-                                    LogUtils.e("drag app ${it.name}")
+                                    LogUtils.e("drag app ${it.name} dragx=${it.posX}  dragY=${it.posY}")
 
                                     coroutineAnimScope.launch {
                                         var preCell = SortUtils.findCurrentCell(it.posX,it.posY)
@@ -73,10 +73,27 @@ fun ToolBarView(applist: State<AppInfoBaseBean?>) {
                                             var preX= it.posX
                                             var preY = it.posY
 
+                                            var preCell = SortUtils.findCurrentCell(it.posX,it.posY)
+                                            print("currentPos=${preCell}");
                                             delay(300)
                                             var curX = it.posX
                                             var curY = it.posY
+                                            run {
+                                                if (Math.abs(preX - curX) < 10 && Math.abs(preY - curY) < 10 && !animFinish) {
+                                                    var cellIndex = SortUtils.findCurrentCell(curX,curY)
+                                                    if (cellIndex==preCell)
+                                                        return@run
+                                                    preCell = cellIndex
+                                                    LogUtils.e("disx =${preX - curX}  disY=${preY - curY} " +
+                                                            "cellIndex=${cellIndex} posX=${it.posX} " +
+                                                            "posY=${it.posY}")
 
+                                                    LogUtils.e("disx2 =${preX - curX}  disY2=${preY - curY} " +
+                                                            "cellIndex=${cellIndex} posX=${it.posX} " +
+                                                            "posY=${it.posY}")
+                                                    animFinish = false
+                                                }
+                                            }
                                         }
                                     }
                                 },

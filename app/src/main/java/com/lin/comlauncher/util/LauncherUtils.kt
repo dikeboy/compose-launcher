@@ -12,6 +12,7 @@ import androidx.core.content.ContextCompat.startActivity
 import android.content.ComponentName
 
 import android.content.Intent
+import android.graphics.Point
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.compose.runtime.Composable
@@ -19,6 +20,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import com.lin.comlauncher.entity.CellBean
 import java.lang.Exception
+import android.view.Display
+
+import android.view.WindowManager
+
+
+
 
 
 object LauncherUtils {
@@ -60,4 +67,21 @@ object LauncherUtils {
         var cellY = (posY-LauncherConfig.DEFAULT_TOP_PADDING)/LauncherConfig.HOME_CELL_HEIGHT
         return CellBean(cellX,cellY)
     }
+
+    fun getScreenWidth3(context: Context): Int {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val defaultDisplay = windowManager.defaultDisplay
+        val outPoint = Point()
+        defaultDisplay.getRealSize(outPoint)
+        return outPoint.x
+    }
+
+    fun getScreenHeight3(context: Context): Int {
+        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        val defaultDisplay = windowManager.defaultDisplay
+        val outPoint = Point()
+        defaultDisplay.getRealSize(outPoint)
+        return outPoint.y
+    }
+
 }

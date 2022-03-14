@@ -10,32 +10,39 @@ import android.graphics.Canvas
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
 import android.util.Log
+import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
 import com.lin.comlauncher.entity.AppInfoBaseBean
 import com.lin.comlauncher.util.DisplayUtils
 import com.lin.comlauncher.util.LauncherConfig
 import com.lin.comlauncher.util.LauncherUtils
+import com.lin.comlauncher.util.LogUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.UNLIMITED
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 
 class HomeViewModel:ViewModel() {
-    public var loadInfoLiveData:MutableLiveData<AppInfoBaseBean> = MutableLiveData()
+    var loadInfoLiveData:MutableLiveData<AppInfoBaseBean> = MutableLiveData()
+
     val channel = Channel<Int>(UNLIMITED)
 
-    val appLiveData: LiveData<AppInfoBaseBean> = loadInfoLiveData
-    var lastSelPos = 0
-    var lastSelTime = 0
+    val appLiveData: LiveData<AppInfoBaseBean>
+        get() = loadInfoLiveData
 
     suspend fun sendData(value:Int){
         channel.send(value)
     }
+    var uiState by mutableStateOf<String>("111")
+    private set
 
     fun loadApp(pm:PackageManager,width:Int,height:Int){
 
         viewModelScope.launch(Dispatchers.IO){
+            var startTime = System.currentTimeMillis();
             var dpWidth = DisplayUtils.pxToDp(width)
             var dpHeight = DisplayUtils.pxToDp(height)
             val intent = Intent(Intent.ACTION_MAIN, null)
@@ -73,6 +80,7 @@ class HomeViewModel:ViewModel() {
                 }
                 ai.activityName = resolveInfo.activityInfo.name
                 ai.pageName = resolveInfo.activityInfo.packageName
+                LauncherConfig.HOME_TOOLBAR_START =dpHeight-dpWidth/4+dpWidth/4+20;
                 if(LauncherUtils.isToolBarApplication(ai.pageName)){
                     ai.width = dpWidth/4;
                     ai.height = dpWidth/4;
@@ -97,12 +105,14 @@ class HomeViewModel:ViewModel() {
                 LauncherConfig.HOME_CELL_WIDTH = ai.width
 
             }
-            Log.e("linlog","loadA==${mlist.size} toolbar=${mToolBarList.size}")
 
             appInfoBaseBean.homeList.clear()
             appInfoBaseBean.homeList.addAll(mlist)
             appInfoBaseBean.toobarList = mToolBarList
+            var userTime = System.currentTimeMillis()-startTime;
+            Log.e("linlog","loadA==${mlist.size} toolbar=${mToolBarList.size} time=$userTime")
             loadInfoLiveData.postValue(appInfoBaseBean)
+            LogUtils.e("niihao")
         }
     }
 }
