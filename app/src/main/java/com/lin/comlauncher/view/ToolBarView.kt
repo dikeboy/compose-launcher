@@ -25,10 +25,7 @@ import com.lin.comlauncher.entity.AppInfoBaseBean
 import com.lin.comlauncher.entity.AppPos
 import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
-import com.lin.comlauncher.util.DoTranslateAnim
-import com.lin.comlauncher.util.LauncherUtils
-import com.lin.comlauncher.util.LogUtils
-import com.lin.comlauncher.util.SortUtils
+import com.lin.comlauncher.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -43,7 +40,8 @@ fun ToolBarView(applist: State<AppInfoBaseBean?>) {
 
     MyBasicColumn()
     {
-        applist.value?.toobarList?.forEachIndexed { index, it ->
+        var toolbarlist = applist.value?.toobarList
+        toolbarlist?.forEachIndexed { index, it ->
             var offsetX by remember { mutableStateOf(it.posX.dp) }
             var offsetY by remember { mutableStateOf(it.posY.dp) }
             var animFinish by remember { mutableStateOf(false) }
@@ -64,17 +62,15 @@ fun ToolBarView(applist: State<AppInfoBaseBean?>) {
                                     it.posFx = it.posX.dp.toPx()
                                     it.posFy = it.posY.dp.toPx()
                                     LauncherUtils.vibrator(context = context)
-                                    LogUtils.e("drag app ${it.name} dragx=${it.posX}  dragY=${it.posY}")
+                                    LogUtils.e("drag tool app ${it.name} dragx=${it.posX}  dragY=${it.posY}")
 
                                     coroutineAnimScope.launch {
+
                                         var preCell = SortUtils.findCurrentCell(it.posX,it.posY)
 
                                         while (it.isDrag){
                                             var preX= it.posX
                                             var preY = it.posY
-
-                                            var preCell = SortUtils.findCurrentCell(it.posX,it.posY)
-                                            print("currentPos=${preCell}");
                                             delay(300)
                                             var curX = it.posX
                                             var curY = it.posY
@@ -88,6 +84,23 @@ fun ToolBarView(applist: State<AppInfoBaseBean?>) {
                                                             "cellIndex=${cellIndex} posX=${it.posX} " +
                                                             "posY=${it.posY}")
 
+                                                    SortUtils.resetToolbarPos(toolbarlist, it)
+                                                    var xscale = 100
+                                                    var yscale = 100
+                                                    animFinish = true
+                                                    DoTranslateAnim( AppPos(0,0),AppPos(100,100),300) {
+                                                            appPos, velocity ->
+                                                        toolbarlist.forEach { appInfo ->
+                                                            if (appInfo == it)
+                                                                return@forEach
+                                                            appInfo.posX =
+                                                                appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
+                                                            appInfo.posY =
+                                                                appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
+                                                        }
+                                                        offsetX = appPos.x.dp
+                                                        offsetY = appPos.y.dp
+                                                    }
                                                     LogUtils.e("disx2 =${preX - curX}  disY2=${preY - curY} " +
                                                             "cellIndex=${cellIndex} posX=${it.posX} " +
                                                             "posY=${it.posY}")
@@ -102,6 +115,7 @@ fun ToolBarView(applist: State<AppInfoBaseBean?>) {
                                     offsetX = it.posX.dp
                                     offsetY = it.posY.dp
                                     LogUtils.e("dragEnd ")
+                                    LogUtils.e("posY=${it.posY} orignY =${it.orignY} cellWidth=${LauncherConfig.HOME_CELL_WIDTH}");
                                     coroutineScope.launch {
                                         DoTranslateAnim( AppPos(it.posX,it.posY),
                                             AppPos(it.orignX,it.orignY),300)

@@ -80,7 +80,7 @@ class HomeViewModel:ViewModel() {
                 }
                 ai.activityName = resolveInfo.activityInfo.name
                 ai.pageName = resolveInfo.activityInfo.packageName
-                LauncherConfig.HOME_TOOLBAR_START =dpHeight-dpWidth/4+dpWidth/4+20;
+                LauncherConfig.HOME_TOOLBAR_START =dpHeight-dpWidth/4;
                 if(LauncherUtils.isToolBarApplication(ai.pageName)){
                     ai.width = dpWidth/4;
                     ai.height = dpWidth/4;

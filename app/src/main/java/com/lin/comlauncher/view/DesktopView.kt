@@ -85,7 +85,7 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                             modifier = Modifier
                                 .size(it.width.dp, it.height.dp)
                                 .offset(posX.dp, posY.dp)
-                                .zIndex(if (it.isDrag) 1f else 0f)
+                                .zIndex(if (it.isDrag) 100f else 0f)
                                 .pointerInput(it) {
                                     detectDragGesturesAfterLongPress(
                                         onDragStart = { off ->

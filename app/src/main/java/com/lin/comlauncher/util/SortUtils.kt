@@ -48,7 +48,7 @@ object SortUtils {
 
         var currenPos = findCurrentCell(app.posX, app.posY)
         var prePos = findCurrentCell(app.orignX,app.orignY)
-        if(currenPos==prePos)
+        if(currenPos==prePos||currenPos<0||prePos<0)
             return
         LogUtils.e("currentPos=$currenPos")
         if (currenPos < 0)
@@ -81,14 +81,51 @@ object SortUtils {
         }
     }
 
+    fun resetToolbarPos(
+        list: ArrayList<ApplicationInfo>, app: ApplicationInfo
+    ) {
+        list.forEach {
+            if (app == it)
+                return@forEach
+            it.orignX = it.posX
+            it.orignY = it.posY
+        }
+
+        var currenPos = findCurrentCell(app.posX, app.posY)
+        var prePos = findCurrentCell(app.orignX,app.orignY)
+        if(currenPos==prePos||currenPos>=0||prePos>=0)
+            return
+        currenPos = -currenPos-100;
+        app.cellPos = currenPos
+        var mIndex = 0
+        list.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
+            var index =if(ai==app)
+                currenPos
+            else if(currenPos<prePos){
+                if(mIndex<currenPos) mIndex else mIndex+1
+            }else{
+                if(mIndex>=currenPos) mIndex+1 else mIndex
+            }
+            LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
+
+            ai.orignX = (index) * ai.width
+            ai.orignY = LauncherConfig.HOME_HEIGHT-LauncherConfig.HOME_CELL_WIDTH;
+            ai.needMoveX = ai.posX - ai.orignX
+            ai.needMoveY = ai.posY - ai.orignY
+            ai.cellPos = index
+            if(ai!=app)
+                mIndex++;
+        }
+    }
+
     fun findCurrentCell(posX: Int, posY: Int): Int {
         var padding = 10
         if (posY < LauncherConfig.DEFAULT_TOP_PADDING-padding) {
             return -1
         }
-        if(posY>=LauncherConfig.HOME_TOOLBAR_START){
+        if(posY>=LauncherConfig.HOME_TOOLBAR_START-40){
            var pos =  (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
-            return pos - 100;
+            return -pos - 100;
         }
         if(posY>LauncherConfig.HOME_HEIGHT-LauncherConfig.HOME_WIDTH/4){
             var cellX = (posX+padding) / LauncherConfig.HOME_CELL_WIDTH

@@ -131,9 +131,6 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                     .fillMaxHeight()
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop)
-
-                LogUtils.e("initview finish ${applist.value?.homeList?.size}");
-
                 if(applist.value?.homeList?.size?:0==0){
                     InitView(applist)
                 }else{
