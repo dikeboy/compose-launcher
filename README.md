@@ -1,7 +1,8 @@
 # comp-launcher
 A android launcher write all with jetpack compose and kotlin
 
-animation pagging. state
+compose animation pagging. state 
+compose with viewmodel
 
 
 It's simple now  and will be richer in the future
