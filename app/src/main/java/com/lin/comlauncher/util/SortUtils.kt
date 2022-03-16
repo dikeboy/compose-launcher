@@ -11,27 +11,30 @@ object SortUtils {
         list: ArrayList<ApplicationInfo>, app: ApplicationInfo
     ) {
         var currentPos = findCurrentCell(app.posX, app.posY)
-        if (currentPos < 0)
-            currentPos = 0
-        else if (currentPos >= 20)
-            currentPos = 19
-        var isEmpty = true
-        list.forEach {
-            if (it.cellPos == currentPos) {
-                isEmpty = false;
-                return@forEach
+        if(app.position==LauncherConfig.POSITION_HOME) {
+
+            if (currentPos < 0)
+                currentPos = 0
+            else if (currentPos >= list.size)
+                currentPos = list.size-1
+            var isEmpty = true
+            list.forEach {
+                if (it.cellPos == currentPos) {
+                    isEmpty = false;
+                    return@forEach
+                }
             }
-        }
-        if (isEmpty) {
-            if (currentPos < 0) {
-                app.orignX = 0
-                app.orignY = 0
-            } else if (currentPos >= 20) {
-                app.orignX = 3;
-                app.orignY = 4
-            } else {
-                app.orignX = currentPos % 4
-                app.orignY = currentPos / 4
+            if (isEmpty) {
+                if (currentPos < 0) {
+                    app.orignX = 0
+                    app.orignY = 0
+                } else if (currentPos >= 20) {
+                    app.orignX = 3;
+                    app.orignY = 4
+                } else {
+                    app.orignX = currentPos % 4
+                    app.orignY = currentPos / 4
+                }
             }
         }
     }
@@ -48,74 +51,62 @@ object SortUtils {
 
         var currenPos = findCurrentCell(app.posX, app.posY)
         var prePos = findCurrentCell(app.orignX,app.orignY)
-        if(currenPos==prePos||currenPos<0||prePos<0)
-            return
-        LogUtils.e("currentPos=$currenPos")
-        if (currenPos < 0)
-            currenPos = 0
-        else if (currenPos >= 20)
-            currenPos = 19
-//        list.remove(app)
-//        list.add(currenPos, app)
+        if(app.position==LauncherConfig.POSITION_HOME){
+            if(currenPos==prePos||currenPos<0||prePos<0)
+                return
+            LogUtils.e("currentPos=$currenPos")
+            if (currenPos < 0)
+                currenPos = 0
+            else if (currenPos >= list.size)
+                currenPos = list.size-1
 
-        app.cellPos = currenPos
-        var mIndex = 0
-        list.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
-            var index =if(ai==app)
-                currenPos
-            else if(currenPos<prePos){
-                if(mIndex<currenPos) mIndex else mIndex+1
-            }else{
-                if(mIndex>=currenPos) mIndex+1 else mIndex
+            app.cellPos = currenPos
+            var mIndex = 0
+            list.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
+                var index =if(ai==app)
+                    currenPos
+                else if(currenPos<prePos){
+                    if(mIndex<currenPos) mIndex else mIndex+1
+                }else{
+                    if(mIndex>=currenPos) mIndex+1 else mIndex
+                }
+                LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
+
+                ai.orignX = (index % 4) * ai.width
+                ai.orignY =
+                    index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
+                ai.needMoveX = ai.posX - ai.orignX
+                ai.needMoveY = ai.posY - ai.orignY
+                ai.cellPos = index
+                if(ai!=app)
+                    mIndex++;
             }
-            LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
+        }else{
+            if(currenPos==prePos||currenPos>=0||prePos>=0)
+                return
+            currenPos = -currenPos-100;
+            app.cellPos = currenPos
+            var mIndex = 0
+            list.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
+                var index =if(ai==app)
+                    currenPos
+                else if(currenPos<prePos){
+                    if(mIndex<currenPos) mIndex else mIndex+1
+                }else{
+                    if(mIndex>=currenPos) mIndex+1 else mIndex
+                }
+                LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
 
-            ai.orignX = (index % 4) * ai.width
-            ai.orignY =
-                index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
-            ai.needMoveX = ai.posX - ai.orignX
-            ai.needMoveY = ai.posY - ai.orignY
-            ai.cellPos = index
-            if(ai!=app)
-                mIndex++;
-        }
-    }
-
-    fun resetToolbarPos(
-        list: ArrayList<ApplicationInfo>, app: ApplicationInfo
-    ) {
-        list.forEach {
-            if (app == it)
-                return@forEach
-            it.orignX = it.posX
-            it.orignY = it.posY
-        }
-
-        var currenPos = findCurrentCell(app.posX, app.posY)
-        var prePos = findCurrentCell(app.orignX,app.orignY)
-        if(currenPos==prePos||currenPos>=0||prePos>=0)
-            return
-        currenPos = -currenPos-100;
-        app.cellPos = currenPos
-        var mIndex = 0
-        list.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
-            var index =if(ai==app)
-                currenPos
-            else if(currenPos<prePos){
-                if(mIndex<currenPos) mIndex else mIndex+1
-            }else{
-                if(mIndex>=currenPos) mIndex+1 else mIndex
+                ai.orignX = (index) * ai.width
+                ai.orignY = LauncherConfig.HOME_HEIGHT-LauncherConfig.HOME_CELL_WIDTH;
+                ai.needMoveX = ai.posX - ai.orignX
+                ai.needMoveY = ai.posY - ai.orignY
+                ai.cellPos = index
+                if(ai!=app)
+                    mIndex++;
             }
-            LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
-
-            ai.orignX = (index) * ai.width
-            ai.orignY = LauncherConfig.HOME_HEIGHT-LauncherConfig.HOME_CELL_WIDTH;
-            ai.needMoveX = ai.posX - ai.orignX
-            ai.needMoveY = ai.posY - ai.orignY
-            ai.cellPos = index
-            if(ai!=app)
-                mIndex++;
         }
+
     }
 
     fun findCurrentCell(posX: Int, posY: Int): Int {

@@ -7,4 +7,6 @@ object LauncherConfig {
     var HOME_WIDTH = 0;
     var HOME_HEIGHT = 0;
     var HOME_TOOLBAR_START= 100
+    var POSITION_HOME = 1;
+    var POSITION_TOOLBAR = 2;
 }
