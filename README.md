@@ -11,7 +11,3 @@ It's simple now  and will be richer in the future
  
  https://user-images.githubusercontent.com/4986104/158654145-7720bec5-62fb-4f18-8b49-fe0d7e7483d5.mp4
 
-
-
-https://user-images.githubusercontent.com/4986104/158654364-8ee0eb1d-bf4c-479b-befc-308ce8733c6e.mp4
-
