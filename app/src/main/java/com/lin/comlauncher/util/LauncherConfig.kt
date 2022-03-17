@@ -9,4 +9,5 @@ object LauncherConfig {
     var HOME_TOOLBAR_START= 100
     var POSITION_HOME = 1;
     var POSITION_TOOLBAR = 2;
+    var CELL_ICON_WIDTH = 56;
 }

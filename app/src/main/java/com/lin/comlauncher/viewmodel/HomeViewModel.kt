@@ -82,7 +82,9 @@ class HomeViewModel:ViewModel() {
                 ai.activityName = resolveInfo.activityInfo.name
                 ai.pageName = resolveInfo.activityInfo.packageName
                 LauncherConfig.HOME_TOOLBAR_START =dpHeight-dpWidth/4;
-                if(LauncherUtils.isToolBarApplication(ai.pageName)){
+                ai.iconWidth=LauncherConfig.CELL_ICON_WIDTH;
+                ai.iconHeight=LauncherConfig.CELL_ICON_WIDTH;
+                if(LauncherUtils.isToolBarApplication(ai.pageName)&&mToolBarList.size<4){
                     ai.width = dpWidth/4;
                     ai.height = dpWidth/4;
                     ai.posY = dpHeight-dpWidth/4
@@ -106,7 +108,6 @@ class HomeViewModel:ViewModel() {
                     index++;
                 }
                 LauncherConfig.HOME_CELL_WIDTH = ai.width
-
             }
 
             appInfoBaseBean.homeList.clear()
@@ -115,7 +116,6 @@ class HomeViewModel:ViewModel() {
             var userTime = System.currentTimeMillis()-startTime;
             Log.e("linlog","loadA==${mlist.size} toolbar=${mToolBarList.size} time=$userTime")
             loadInfoLiveData.postValue(appInfoBaseBean)
-            LogUtils.e("niihao")
         }
     }
 }

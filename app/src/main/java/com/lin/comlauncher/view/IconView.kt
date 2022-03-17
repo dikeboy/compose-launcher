@@ -74,6 +74,8 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                 var preY = it.posY
 
                                 delay(300)
+                                if(!it.isDrag)
+                                    break
                                 var curX = it.posX
                                 var curY = it.posY
                                 run {
@@ -107,7 +109,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                             300
                                         ) { appPos, velocity ->
                                             applist.forEach { appInfo ->
-                                                if (appInfo == it)
+                                                if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
                                                     return@forEach
                                                 appInfo.posX =
                                                     appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
@@ -117,11 +119,12 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                             offsetX.value = appPos.x.dp
                                             offsetY.value = appPos.y.dp
                                         }
-                                        LogUtils.e(
-                                            "disx2 =${preX - curX}  disY2=${preY - curY} " +
-                                                    "cellIndex=${cellIndex} posX=${it.posX} " +
-                                                    "posY=${it.posY}"
-                                        )
+                                        applist.forEach { appInfo ->
+                                            if (appInfo == it)
+                                                return@forEach
+                                            appInfo.orignX = appInfo.posX
+                                            appInfo.orignY = appInfo.posY
+                                        }
                                         animFinish.value = false
                                     }
                                 }
@@ -135,6 +138,8 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                         offsetY.value = it.posY.dp
                         LogUtils.e("dragEnd ")
                         coroutineScope.launch {
+                            if(animFinish.value)
+                                delay(300)
                             DoTranslateAnim(
                                 AppPos(it.posX, it.posY),
                                 AppPos(it.orignX, it.orignY),
@@ -146,8 +151,9 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                 offsetX.value = appPos.x.dp
                                 offsetY.value = appPos.y.dp
                             }
+                            dragInfoState.value = null;
+
                         }
-                        dragInfoState.value = null;
                     },
                     onDragCancel = {
                         it.isDrag = false
@@ -180,7 +186,7 @@ fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
     it.icon?.let { icon ->
         Image(
             icon.asImageBitmap(), contentDescription = "",
-            modifier = Modifier.size(56.dp, 56.dp)
+            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
         )
 
     }

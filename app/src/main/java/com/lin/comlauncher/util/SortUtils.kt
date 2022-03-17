@@ -51,10 +51,12 @@ object SortUtils {
 
         var currenPos = findCurrentCell(app.posX, app.posY)
         var prePos = findCurrentCell(app.orignX,app.orignY)
+        LogUtils.e("currentPos=$currenPos prePos=$prePos pos=${app.position}")
+
         if(app.position==LauncherConfig.POSITION_HOME){
             if(currenPos==prePos||currenPos<0||prePos<0)
                 return
-            LogUtils.e("currentPos=$currenPos")
+            LogUtils.e("will sort")
             if (currenPos < 0)
                 currenPos = 0
             else if (currenPos >= list.size)
@@ -70,7 +72,7 @@ object SortUtils {
                 }else{
                     if(mIndex>=currenPos) mIndex+1 else mIndex
                 }
-                LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
+//                LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
 
                 ai.orignX = (index % 4) * ai.width
                 ai.orignY =
@@ -95,7 +97,6 @@ object SortUtils {
                 }else{
                     if(mIndex>=currenPos) mIndex+1 else mIndex
                 }
-                LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
 
                 ai.orignX = (index) * ai.width
                 ai.orignY = LauncherConfig.HOME_HEIGHT-LauncherConfig.HOME_CELL_WIDTH;
@@ -111,19 +112,22 @@ object SortUtils {
 
     fun findCurrentCell(posX: Int, posY: Int): Int {
         var padding = 10
-        if (posY < LauncherConfig.DEFAULT_TOP_PADDING-padding) {
+        if (posY < LauncherConfig.DEFAULT_TOP_PADDING-LauncherConfig.CELL_ICON_WIDTH/2) {
             return -1
         }
         if(posY>=LauncherConfig.HOME_TOOLBAR_START-40){
            var pos =  (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
             return -pos - 100;
         }
-        if(posY>LauncherConfig.HOME_HEIGHT-LauncherConfig.HOME_WIDTH/4){
-            var cellX = (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
-            return cellX+100;
-        }
-        var cellX = (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
-        var cellY = (posY - LauncherConfig.DEFAULT_TOP_PADDING+padding) / LauncherConfig.HOME_CELL_HEIGHT
+
+        var cellX = (posX +LauncherConfig.HOME_CELL_WIDTH/2)/LauncherConfig.HOME_CELL_WIDTH;
+
+
+        var cellY = (posY - LauncherConfig.DEFAULT_TOP_PADDING
+                +LauncherConfig.HOME_CELL_HEIGHT/2)/ LauncherConfig.HOME_CELL_HEIGHT
+
+//        LogUtils.e("cell=$cellX  cellY=$cellY de=${posX / (LauncherConfig.HOME_WIDTH/8)}")
+
         return cellX + cellY * 4
     }
 

@@ -24,7 +24,6 @@ class ComPager() : FlingBehavior {
 @Composable
 fun pagerFlingBehavior(state: ScrollState,childNum: Int): FlingBehavior {
     val flingSpec = rememberSplineBasedDecay<Float>()
-    Log.e("lin","child size=${childNum}")
     return remember(flingSpec) {
         PagerFling(flingSpec, state,childNum = childNum)
     }

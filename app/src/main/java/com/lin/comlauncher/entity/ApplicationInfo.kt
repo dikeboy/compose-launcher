@@ -21,7 +21,9 @@ class ApplicationInfo(
     var posFy:Float = 0f,
     var cellPos:Int = 0,
     var isAnimi:Boolean =false,
-    var position:Int = 0
+    var position:Int = 0,
+    var iconWidth:Int = 0,
+    var iconHeight:Int = 0,
 )
 
 class AppInfoBaseBean(
