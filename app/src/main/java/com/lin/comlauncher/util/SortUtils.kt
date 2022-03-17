@@ -8,7 +8,7 @@ import com.lin.comlauncher.entity.CellBean
 
 object SortUtils {
     fun calculPos(
-        list: List<ApplicationInfo>, app: ApplicationInfo
+        list: ArrayList<ApplicationInfo>, app: ApplicationInfo
     ) {
         var currentPos = findCurrentCell(app.posX, app.posY)
         if(app.position==LauncherConfig.POSITION_HOME) {
@@ -40,7 +40,8 @@ object SortUtils {
     }
 
     fun resetChoosePos(
-        list: List<ApplicationInfo>, app: ApplicationInfo
+        list: ArrayList<ApplicationInfo>, app: ApplicationInfo,
+        toolList:ArrayList<ApplicationInfo>
     ) {
         list.forEach {
             if (app == it)
@@ -59,6 +60,26 @@ object SortUtils {
             if(currenPos<=-100){
                 currenPos = -currenPos-100;
                 var appCell = app.cellPos;
+
+                toolList.getOrNull(currenPos)?.let { destApp->
+                    destApp.position = LauncherConfig.POSITION_HOME
+                    destApp.needMoveX = -app.orignX+destApp.posX;
+                    destApp.needMoveY = -app.orignY+destApp.posY;
+                    destApp.orignX = app.orignX
+                    destApp.orignY = app.orignY
+                    destApp.cellPos = appCell
+                    toolList.remove(destApp)
+                    toolList.add(currenPos,app)
+
+                    app.orignX = destApp.posX
+                    app.orignY = destApp.posY
+                    app.needMoveX = app.orignX-app.posX
+                    app.needMoveY = app.orignY-app.posY
+                    app.position = LauncherConfig.POSITION_TOOLBAR
+                    list.remove(app)
+                    list.add(destApp)
+
+                }
 
                 return
             }

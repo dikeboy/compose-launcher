@@ -29,7 +29,10 @@ import com.lin.comlauncher.entity.AppPos
 import com.lin.comlauncher.entity.ApplicationInfo
 import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
-import com.lin.comlauncher.util.*
+import com.lin.comlauncher.util.DoTranslateAnim
+import com.lin.comlauncher.util.LauncherUtils
+import com.lin.comlauncher.util.LogUtils
+import com.lin.comlauncher.util.SortUtils
 import com.lin.comlauncher.viewmodel.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.coroutineScope
@@ -38,7 +41,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 @Composable
-fun DesktopView(lists: ArrayList<ApplicationInfo>, viewModel: HomeViewModel) {
+fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
     val state = rememberScrollState()
@@ -56,6 +59,8 @@ fun DesktopView(lists: ArrayList<ApplicationInfo>, viewModel: HomeViewModel) {
     var offsetX = remember { mutableStateOf(0.dp) }
     var offsetY = remember { mutableStateOf(0.dp) }
     var currentSelect = remember { mutableStateOf(0)}
+    var homeList = lists.homeList
+    var toolBarList =lists.toobarList
 
     Row(
         modifier = Modifier
@@ -65,36 +70,36 @@ fun DesktopView(lists: ArrayList<ApplicationInfo>, viewModel: HomeViewModel) {
             .horizontalScroll(
                 state,
                 flingBehavior = pagerFlingBehavior(
-                    state,LauncherConfig.CELL_NUM
+                    state,
+                    (lists.homeList?.size ?: 0)
                 )
             )
     ) {
         var pos = offsetX.value
-        if(LauncherConfig.CELL_NUM==0)
-            return
-        if (state.maxValue > 0 && state.maxValue < 10000f) {
-            scrollWidth.value = state.maxValue
-        }
-        var selIndex = if (scrollWidth.value == 0) 0
-        else state.value / (scrollWidth.value / (LauncherConfig.CELL_NUM))
-        currentSelect.value = if(selIndex>=LauncherConfig.CELL_NUM) LauncherConfig.CELL_NUM-1 else selIndex
+        lists.homeList?.let {homeList->
+            if(homeList.size==0)
+                return@let
+            if (state.maxValue > 0 && state.maxValue < 10000f) {
+                scrollWidth.value = state.maxValue
+            }
+            var selIndex = if (scrollWidth.value == 0) 0
+            else state.value / (scrollWidth.value / (homeList.size))
+            currentSelect.value = if(selIndex>=homeList.size) homeList.size-1 else selIndex
 
-        var time1 = System.currentTimeMillis()
-        for(i in 0 until LauncherConfig.CELL_NUM){
-            lists.filter { it.cellIndex==i}.let { applist->
+            lists.homeList?.forEachIndexed { index, applist ->
                 Column(
                     modifier = Modifier
                         .width(width = width.dp)
                         .height(height = height.dp)
                 ) {
-                    if ((currentSelect.value == i && dragInfoState.value != null) ||
-                        (dragInfoState.value == null&&Math.abs(i-currentSelect.value)<=1))
+                    if ((currentSelect.value == index && dragInfoState.value != null) || dragInfoState.value == null)
                         MyBasicColumn() {
                             var animFinish = remember { mutableStateOf(false) }
                             applist.forEach {
                                 IconView(
                                     it = it,
                                     applist = applist,
+                                    toolBarList!!,
                                     coroutineScope = coroutineScope,
                                     coroutineAnimScope = coroutineAnimScope,
                                     dragInfoState = dragInfoState,
@@ -108,29 +113,31 @@ fun DesktopView(lists: ArrayList<ApplicationInfo>, viewModel: HomeViewModel) {
                 }
             }
         }
-        lists.filter { it.cellIndex==-1}.let { applist->
-            MyBasicColumn(modifier = Modifier.zIndex(zIndex = 0f))
-            {
-                applist?.forEachIndexed { index, it ->
-                    var animFinish = remember { mutableStateOf(false) }
-                    applist.forEach {
-                        IconView(
-                            it = it,
-                            applist = lists,
-                            coroutineScope = coroutineScope,
-                            coroutineAnimScope = coroutineAnimScope,
-                            dragInfoState = dragInfoState,
-                            animFinish = animFinish,
-                            offsetX = offsetX,
-                            offsetY = offsetY,
-                            showText = false,
-                            dragUpState = dragUpState
-                        )
-                    }
+    }
+    lists.toobarList?.let { applist->
+        MyBasicColumn(modifier = Modifier.zIndex(zIndex = 0f))
+        {
+
+            var homelist = homeList?.getOrNull(currentSelect.value)?: ArrayList()
+            applist?.forEachIndexed { index, it ->
+                var animFinish = remember { mutableStateOf(false) }
+                applist.forEach {
+                    IconView(
+                        it = it,
+                        applist = homelist,
+                        toolList = applist,
+                        coroutineScope = coroutineScope,
+                        coroutineAnimScope = coroutineAnimScope,
+                        dragInfoState = dragInfoState,
+                        animFinish = animFinish,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        showText = false,
+                        dragUpState = dragUpState
+                    )
                 }
             }
         }
-        LogUtils.e("userTime =${System.currentTimeMillis()-time1}")
 //
     }
 
