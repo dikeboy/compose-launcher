@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 import kotlin.coroutines.CoroutineContext
 
 @Composable
-fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
+fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
     val state = rememberScrollState()
@@ -52,9 +52,16 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
     val coroutineAnimScope = rememberCoroutineScope()
 
     var dragInfoState = remember { mutableStateOf<ApplicationInfo?>(null) }
+    var dragUpState = remember {
+        mutableStateOf(false)
+    }
 
     var offsetX = remember { mutableStateOf(0.dp) }
     var offsetY = remember { mutableStateOf(0.dp) }
+    var currentSelect = remember { mutableStateOf(0)}
+    var homeList = lists.homeList
+    var toolBarList =lists.toobarList
+
     Row(
         modifier = Modifier
             .width(width = width.dp)
@@ -64,12 +71,12 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
                 state,
                 flingBehavior = pagerFlingBehavior(
                     state,
-                    (lists.value?.homeList?.size ?: 0)
+                    (lists.homeList?.size ?: 0)
                 )
             )
     ) {
         var pos = offsetX.value
-        lists.value?.homeList?.let {homeList->
+        lists.homeList?.let {homeList->
             if(homeList.size==0)
                 return@let
             if (state.maxValue > 0 && state.maxValue < 10000f) {
@@ -77,27 +84,29 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
             }
             var selIndex = if (scrollWidth.value == 0) 0
             else state.value / (scrollWidth.value / (homeList.size))
-            selIndex = if(selIndex>=homeList.size) homeList.size-1 else selIndex
+            currentSelect.value = if(selIndex>=homeList.size) homeList.size-1 else selIndex
 
-            lists.value?.homeList?.forEachIndexed { index, applist ->
+            lists.homeList?.forEachIndexed { index, applist ->
                 Column(
                     modifier = Modifier
                         .width(width = width.dp)
                         .height(height = height.dp)
                 ) {
-                    if ((selIndex == index && dragInfoState.value != null) || dragInfoState.value == null)
+                    if ((currentSelect.value == index && dragInfoState.value != null) || dragInfoState.value == null)
                         MyBasicColumn() {
                             var animFinish = remember { mutableStateOf(false) }
                             applist.forEach {
                                 IconView(
                                     it = it,
                                     applist = applist,
+                                    toolBarList!!,
                                     coroutineScope = coroutineScope,
                                     coroutineAnimScope = coroutineAnimScope,
                                     dragInfoState = dragInfoState,
                                     animFinish = animFinish,
                                     offsetX = offsetX,
-                                    offsetY = offsetY
+                                    offsetY = offsetY,
+                                    dragUpState = dragUpState
                                 )
                             }
                         }
@@ -105,22 +114,26 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
             }
         }
     }
-    lists.value?.toobarList?.let { applist->
+    lists.toobarList?.let { applist->
         MyBasicColumn(modifier = Modifier.zIndex(zIndex = 0f))
         {
+
+            var homelist = homeList?.getOrNull(currentSelect.value)?: ArrayList()
             applist?.forEachIndexed { index, it ->
                 var animFinish = remember { mutableStateOf(false) }
                 applist.forEach {
                     IconView(
                         it = it,
-                        applist = applist,
+                        applist = homelist,
+                        toolList = applist,
                         coroutineScope = coroutineScope,
                         coroutineAnimScope = coroutineAnimScope,
                         dragInfoState = dragInfoState,
                         animFinish = animFinish,
                         offsetX = offsetX,
                         offsetY = offsetY,
-                        showText = false
+                        showText = false,
+                        dragUpState = dragUpState
                     )
                 }
             }
@@ -129,16 +142,19 @@ fun DesktopView(lists: State<AppInfoBaseBean?>, viewModel: HomeViewModel) {
     }
 
     var pos = offsetY.value
-    dragInfoState?.value?.let {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .size(it.width.dp, it.height.dp)
-                .offset(it.posX.dp, it.posY.dp)
-        ) {
-            IconViewDetail(it = it)
+    if(dragUpState.value){
+        dragInfoState?.value?.let {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .size(it.width.dp, it.height.dp)
+                    .offset(it.posX.dp, it.posY.dp)
+            ) {
+                IconViewDetail(it = it)
+            }
         }
     }
+
 
 }
 

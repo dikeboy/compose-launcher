@@ -99,10 +99,11 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
     var height = LocalConfiguration.current.screenHeightDp
     LauncherConfig.HOME_WIDTH = width;
     LauncherConfig.HOME_HEIGHT = height;
-    var applist = homeViewModel.appLiveData.observeAsState()
+    var versionLiveState = homeViewModel.appVersionLiveData.observeAsState()
+    var applist = homeViewModel.infoBaseBean
 
-    val state = rememberScrollState()
-    var context = LocalContext.current
+    LogUtils.e("recreate ${versionLiveState.value} ")
+
     ComposeLauncherTheme {
         Scaffold(
             content = {
@@ -110,7 +111,8 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                     .fillMaxHeight()
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop)
-                if(applist.value?.homeList?.size?:0==0){
+                var version = versionLiveState.value
+                if(applist.homeList?.size?:0==0){
                     InitView(applist)
                 }else{
                     DesktopView(lists = applist,viewModel = homeViewModel)

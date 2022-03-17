@@ -18,7 +18,7 @@ import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
 
 @Composable
-fun InitView(lists: State<AppInfoBaseBean?>){
+fun InitView(lists: AppInfoBaseBean){
 
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp

@@ -40,9 +40,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
+             toolList:ArrayList<ApplicationInfo>,
              coroutineScope: CoroutineScope,coroutineAnimScope:CoroutineScope,
              dragInfoState:MutableState<ApplicationInfo?>,animFinish:MutableState<Boolean>,
-             offsetX:MutableState<Dp>,offsetY:MutableState<Dp>,showText:Boolean=true
+             offsetX:MutableState<Dp>,offsetY:MutableState<Dp>,showText:Boolean=true,
+             dragUpState:MutableState<Boolean>
 ) {
     var posX = it.posX
     var posY = it.posY
@@ -64,6 +66,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                         LauncherUtils.vibrator(context = context)
                         LogUtils.e("drag app ${it.name}")
                         dragInfoState.value = it;
+                        dragUpState.value =true
 
                         coroutineAnimScope.launch {
                             var preCell =
@@ -73,7 +76,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                 var preX = it.posX
                                 var preY = it.posY
 
-                                delay(300)
+                                delay(200)
                                 if(!it.isDrag)
                                     break
                                 var curX = it.posX
@@ -98,7 +101,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                         )
                                         SortUtils.resetChoosePos(
                                             applist,
-                                            it
+                                            it, toolList
                                         )
                                         var xscale = 100
                                         var yscale = 100
@@ -106,15 +109,24 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                         DoTranslateAnim(
                                             AppPos(0, 0),
                                             AppPos(100, 100),
-                                            300
+                                            200
                                         ) { appPos, velocity ->
-                                            applist.forEach { appInfo ->
+                                            applist.forEach continuing@{ appInfo ->
                                                 if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
-                                                    return@forEach
+                                                    return@continuing
                                                 appInfo.posX =
                                                     appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
                                                 appInfo.posY =
                                                     appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
+                                            }
+                                            toolList.forEach continuing@{ appInfo->
+                                                if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
+                                                    return@continuing
+                                                appInfo.posX =
+                                                    appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
+                                                appInfo.posY =
+                                                    appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
+                                                LogUtils.e("anim")
                                             }
                                             offsetX.value = appPos.x.dp
                                             offsetY.value = appPos.y.dp
@@ -122,8 +134,8 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                         applist.forEach { appInfo ->
                                             if (appInfo == it)
                                                 return@forEach
-                                            appInfo.orignX = appInfo.posX
                                             appInfo.orignY = appInfo.posY
+                                            appInfo.orignX = appInfo.posX
                                         }
                                         animFinish.value = false
                                     }
@@ -137,13 +149,14 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                         offsetX.value = it.posX.dp
                         offsetY.value = it.posY.dp
                         LogUtils.e("dragEnd ")
+                        dragUpState.value = false
                         coroutineScope.launch {
                             if(animFinish.value)
-                                delay(300)
+                                delay(200)
                             DoTranslateAnim(
                                 AppPos(it.posX, it.posY),
                                 AppPos(it.orignX, it.orignY),
-                                300
+                                200
                             )
                             { appPos, velocity ->
                                 it.posX = appPos.x
@@ -157,6 +170,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                     },
                     onDragCancel = {
                         it.isDrag = false
+                        dragUpState.value = false
                         LogUtils.e("drag cancle")
                         dragInfoState.value = null
                     }

@@ -40,7 +40,8 @@ object SortUtils {
     }
 
     fun resetChoosePos(
-        list: ArrayList<ApplicationInfo>, app: ApplicationInfo
+        list: ArrayList<ApplicationInfo>, app: ApplicationInfo,
+        toolList:ArrayList<ApplicationInfo>
     ) {
         list.forEach {
             if (app == it)
@@ -54,9 +55,34 @@ object SortUtils {
         LogUtils.e("currentPos=$currenPos prePos=$prePos pos=${app.position}")
 
         if(app.position==LauncherConfig.POSITION_HOME){
-            if(currenPos==prePos||currenPos<0||prePos<0)
+            if(currenPos==prePos)
                 return
-            LogUtils.e("will sort")
+            if(currenPos<=-100){
+                currenPos = -currenPos-100;
+                var appCell = app.cellPos;
+
+                toolList.getOrNull(currenPos)?.let { destApp->
+                    destApp.position = LauncherConfig.POSITION_HOME
+                    destApp.needMoveX = -app.orignX+destApp.posX;
+                    destApp.needMoveY = -app.orignY+destApp.posY;
+                    destApp.orignX = app.orignX
+                    destApp.orignY = app.orignY
+                    destApp.cellPos = appCell
+                    toolList.remove(destApp)
+                    toolList.add(currenPos,app)
+
+                    app.orignX = destApp.posX
+                    app.orignY = destApp.posY
+                    app.needMoveX = app.orignX-app.posX
+                    app.needMoveY = app.orignY-app.posY
+                    app.position = LauncherConfig.POSITION_TOOLBAR
+                    list.remove(app)
+                    list.add(destApp)
+
+                }
+
+                return
+            }
             if (currenPos < 0)
                 currenPos = 0
             else if (currenPos >= list.size)
