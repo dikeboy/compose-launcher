@@ -29,10 +29,7 @@ import androidx.compose.ui.zIndex
 import com.lin.comlauncher.entity.AppInfoBaseBean
 import com.lin.comlauncher.entity.AppPos
 import com.lin.comlauncher.entity.ApplicationInfo
-import com.lin.comlauncher.util.DoTranslateAnim
-import com.lin.comlauncher.util.LauncherUtils
-import com.lin.comlauncher.util.LogUtils
-import com.lin.comlauncher.util.SortUtils
+import com.lin.comlauncher.util.*
 import com.lin.comlauncher.viewmodel.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -42,12 +39,11 @@ import kotlinx.coroutines.launch
 fun IconView(it: ApplicationInfo,applist:List<ApplicationInfo>,
              coroutineScope: CoroutineScope,coroutineAnimScope:CoroutineScope,
              dragInfoState:MutableState<ApplicationInfo?>,animFinish:MutableState<Boolean>,
-             offsetX:MutableState<Dp>,offsetY:MutableState<Dp>,showText:Boolean=true,
+             offsetX:MutableState<Dp>,offsetY:MutableState<Dp>,
              dragUpState:MutableState<Boolean>
 ) {
     var posX = it.posX
     var posY = it.posY
-
     var context = LocalContext.current;
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -127,6 +123,12 @@ fun IconView(it: ApplicationInfo,applist:List<ApplicationInfo>,
                                             appInfo.orignY = appInfo.posY
                                             appInfo.orignX = appInfo.posX
                                         }
+                                        toolList.forEach { appInfo ->
+                                            if (appInfo == it)
+                                                return@forEach
+                                            appInfo.orignY = appInfo.posY
+                                            appInfo.orignX = appInfo.posX
+                                        }
                                         animFinish.value = false
                                     }
                                 }
@@ -155,7 +157,7 @@ fun IconView(it: ApplicationInfo,applist:List<ApplicationInfo>,
                                 offsetY.value = appPos.y.dp
                             }
                             dragInfoState.value = null;
-
+                          SortUtils.swapChange(applist = applist,toolList = toolList,app=it)
                         }
                     },
                     onDragCancel = {
@@ -182,7 +184,7 @@ fun IconView(it: ApplicationInfo,applist:List<ApplicationInfo>,
             ) {
                 LauncherUtils.startApp(context, it)
             }) {
-        IconViewDetail(it,showText = showText)
+        IconViewDetail(it,it.showText)
     }
 }
 @Composable

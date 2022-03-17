@@ -43,45 +43,101 @@ object SortUtils {
         list: ArrayList<ApplicationInfo>, app: ApplicationInfo,
         toolList:ArrayList<ApplicationInfo>
     ) {
-        list.forEach {
+        list.forEach continuing@{
             if (app == it)
-                return@forEach
+                return@continuing
             it.orignX = it.posX
             it.orignY = it.posY
         }
-
+        toolList.forEach continuing@{
+            if (app == it)
+                return@continuing
+            it.orignX = it.posX
+            it.orignY = it.posY
+        }
         var currenPos = findCurrentCell(app.posX, app.posY)
         var prePos = findCurrentCell(app.orignX,app.orignY)
-        LogUtils.e("currentPos=$currenPos prePos=$prePos pos=${app.position}")
+        LogUtils.e("currentPos=${-currenPos-100} prePos=$prePos pos=${app.position} pos=${app.position}")
 
         if(app.position==LauncherConfig.POSITION_HOME){
             if(currenPos==prePos)
                 return
             if(currenPos<=-100){
                 currenPos = -currenPos-100;
-                var appCell = app.cellPos;
 
-                toolList.getOrNull(currenPos)?.let { destApp->
-                    destApp.position = LauncherConfig.POSITION_HOME
-                    destApp.needMoveX = -app.orignX+destApp.posX;
-                    destApp.needMoveY = -app.orignY+destApp.posY;
-                    destApp.orignX = app.orignX
-                    destApp.orignY = app.orignY
-                    destApp.cellPos = appCell
-                    toolList.remove(destApp)
-                    toolList.add(currenPos,app)
+                toolList.firstOrNull { it.cellPos ==currenPos }?.let { destApp->
+                    LogUtils.e("1  ${app.dragInfo==destApp}")
+                    var appCell = destApp.cellPos;
+                    if(destApp==app.dragInfo){
 
-                    app.orignX = destApp.posX
-                    app.orignY = destApp.posY
-                    app.needMoveX = app.orignX-app.posX
-                    app.needMoveY = app.orignY-app.posY
-                    app.position = LauncherConfig.POSITION_TOOLBAR
-                    list.remove(app)
-                    list.add(destApp)
+                        return;
+                    }else{
+                        var dragInfo = app.dragInfo
+                        if(dragInfo!=null){
+                            destApp.needMoveX = -dragInfo.orignX+destApp.posX;
+                            destApp.needMoveY = -dragInfo.orignY+destApp.posY;
+                            destApp.orignX = dragInfo.orignX
+                            destApp.orignY = dragInfo.orignY
+                            destApp.cellPos = dragInfo.cellPos
+                            destApp.showText = true
+
+                            dragInfo.orignX = app.orignX
+                            dragInfo.orignY = app.orignY
+                            dragInfo.needMoveX = dragInfo.posX-app.posX
+                            dragInfo.needMoveY = dragInfo.posY-app.posY
+                            dragInfo.cellPos = app.cellPos
+                            dragInfo.showText = false
+
+                            app.orignX = destApp.posX
+                            app.orignY = destApp.posY
+                            app.needMoveX = app.orignX-app.posX
+                            app.needMoveY = app.orignY-app.posY
+                            app.dragInfo = destApp
+                            app.cellPos = appCell
+                            app.showText = false
+                        }else{
+                            destApp.needMoveX = -app.orignX+destApp.posX;
+                            destApp.needMoveY = -app.orignY+destApp.posY;
+                            destApp.orignX = app.orignX
+                            destApp.orignY = app.orignY
+                            destApp.cellPos = app.cellPos
+                            destApp.showText= true
+
+                            app.orignX = destApp.posX
+                            app.orignY = destApp.posY
+                            app.needMoveX = app.orignX-app.posX
+                            app.needMoveY = app.orignY-app.posY
+                            app.dragInfo = destApp
+                            app.cellPos = appCell
+                            app.showText = false
+
+                        }
+
+                    }
+
 
                 }
-
                 return
+            }
+            app.dragInfo?.let { dragInfo->
+                var cOrignX = dragInfo.orignX
+                var cOrignY  = dragInfo.orignY
+                var appCell = dragInfo.cellPos;
+
+                dragInfo.orignX = app.orignX
+                dragInfo.orignY = app.orignY
+                dragInfo.needMoveX = dragInfo.posX-app.orignX
+                dragInfo.needMoveY = dragInfo.posY-app.orignY
+                dragInfo.cellPos =   app.cellPos
+                dragInfo.showText = false
+
+                app.orignX = cOrignX
+                app.orignY = cOrignY
+                app.needMoveX = app.orignX-app.posX
+                app.needMoveY = app.orignY-app.posY
+                app.dragInfo = null
+                app.cellPos =appCell
+                app.showText = true
             }
             if (currenPos < 0)
                 currenPos = 0
@@ -115,7 +171,7 @@ object SortUtils {
             currenPos = -currenPos-100;
             app.cellPos = currenPos
             var mIndex = 0
-            list.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
+            toolList.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
                 var index =if(ai==app)
                     currenPos
                 else if(currenPos<prePos){
@@ -142,7 +198,7 @@ object SortUtils {
             return -1
         }
         if(posY>=LauncherConfig.HOME_TOOLBAR_START-40){
-           var pos =  (posX+padding) / LauncherConfig.HOME_CELL_WIDTH
+            var pos = (posX +LauncherConfig.HOME_CELL_WIDTH/2)/LauncherConfig.HOME_CELL_WIDTH;
             return -pos - 100;
         }
 
@@ -157,7 +213,22 @@ object SortUtils {
         return cellX + cellY * 4
     }
 
+    fun swapChange(applist:ArrayList<ApplicationInfo>,toolList: ArrayList<ApplicationInfo>,app: ApplicationInfo) {
+        var app1 = app
+        var app2 = app.dragInfo
+        if(app1!=null&&app2!=null){
+            var index = toolList.indexOf(app2);
+            toolList.remove(app2)
+            toolList.add(index,app1);
+            applist.remove(app1);
+            applist.add(app2);
 
+            app.position = LauncherConfig.POSITION_TOOLBAR
+            app2.position = LauncherConfig.POSITION_HOME
+        }
+
+        app.dragInfo=null
+    }
 
 }
 

@@ -42,6 +42,7 @@ import kotlin.coroutines.CoroutineContext
 
 @Composable
 fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
+    var time1=System.currentTimeMillis()
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
     val state = rememberScrollState()
@@ -59,6 +60,8 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
     var offsetX = remember { mutableStateOf(0.dp) }
     var offsetY = remember { mutableStateOf(0.dp) }
     var currentSelect = remember { mutableStateOf(0)}
+    var animFinish = remember { mutableStateOf(false) }
+
     var homeList = lists.homeList
     var toolBarList =lists.toobarList
 
@@ -92,9 +95,9 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                         .width(width = width.dp)
                         .height(height = height.dp)
                 ) {
-                    if ((currentSelect.value == index && dragInfoState.value != null) || dragInfoState.value == null)
+                    if ((currentSelect.value == index && dragInfoState.value != null)
+                        || (dragInfoState.value == null&&Math.abs(currentSelect.value-index)<=1))
                         MyBasicColumn() {
-                            var animFinish = remember { mutableStateOf(false) }
                             applist.forEach {
                                 IconView(
                                     it = it,
@@ -117,11 +120,8 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
     lists.toobarList?.let { applist->
         MyBasicColumn(modifier = Modifier.zIndex(zIndex = 0f))
         {
-
             var homelist = homeList?.getOrNull(currentSelect.value)?: ArrayList()
             applist?.forEachIndexed { index, it ->
-                var animFinish = remember { mutableStateOf(false) }
-                applist.forEach {
                     IconView(
                         it = it,
                         applist = homelist,
@@ -132,10 +132,8 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                         animFinish = animFinish,
                         offsetX = offsetX,
                         offsetY = offsetY,
-                        showText = false,
                         dragUpState = dragUpState
                     )
-                }
             }
         }
 //
@@ -154,7 +152,8 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
             }
         }
     }
-
+    Text(text = "fpx:${1000 / (System.currentTimeMillis() - time1)}",
+    Modifier.offset (20.dp,30.dp))
 
 }
 
