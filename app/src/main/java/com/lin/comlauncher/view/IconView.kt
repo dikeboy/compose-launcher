@@ -39,8 +39,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
-             toolList:ArrayList<ApplicationInfo>,
+fun IconView(it: ApplicationInfo,applist:List<ApplicationInfo>,
              coroutineScope: CoroutineScope,coroutineAnimScope:CoroutineScope,
              dragInfoState:MutableState<ApplicationInfo?>,animFinish:MutableState<Boolean>,
              offsetX:MutableState<Dp>,offsetY:MutableState<Dp>,showText:Boolean=true,
@@ -101,7 +100,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                         )
                                         SortUtils.resetChoosePos(
                                             applist,
-                                            it, toolList
+                                            it
                                         )
                                         var xscale = 100
                                         var yscale = 100
@@ -109,7 +108,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                         DoTranslateAnim(
                                             AppPos(0, 0),
                                             AppPos(100, 100),
-                                            200
+                                            1200
                                         ) { appPos, velocity ->
                                             applist.forEach continuing@{ appInfo ->
                                                 if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
@@ -118,15 +117,6 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                                     appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
                                                 appInfo.posY =
                                                     appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
-                                            }
-                                            toolList.forEach continuing@{ appInfo->
-                                                if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
-                                                    return@continuing
-                                                appInfo.posX =
-                                                    appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
-                                                appInfo.posY =
-                                                    appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
-                                                LogUtils.e("anim")
                                             }
                                             offsetX.value = appPos.x.dp
                                             offsetY.value = appPos.y.dp

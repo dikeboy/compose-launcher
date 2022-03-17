@@ -24,6 +24,7 @@ class ApplicationInfo(
     var position:Int = 0,
     var iconWidth:Int = 0,
     var iconHeight:Int = 0,
+    var cellIndex:Int = 0
 )
 
 class AppInfoBaseBean(

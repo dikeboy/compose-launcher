@@ -100,7 +100,7 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
     LauncherConfig.HOME_WIDTH = width;
     LauncherConfig.HOME_HEIGHT = height;
     var versionLiveState = homeViewModel.appVersionLiveData.observeAsState()
-    var applist = homeViewModel.infoBaseBean
+    var applist = homeViewModel.appInfoList
 
     LogUtils.e("recreate ${versionLiveState.value} ")
 
@@ -112,8 +112,8 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop)
                 var version = versionLiveState.value
-                if(applist.homeList?.size?:0==0){
-                    InitView(applist)
+                if(applist.size==0){
+                    InitView()
                 }else{
                     DesktopView(lists = applist,viewModel = homeViewModel)
                 }
