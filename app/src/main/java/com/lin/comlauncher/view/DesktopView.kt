@@ -152,7 +152,7 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
             }
         }
     }
-    Text(text = "fpx:${1000 / (System.currentTimeMillis() - time1)}",
+    Text(text = "fps:${1000 / (System.currentTimeMillis() - time1)}",
     Modifier.offset (20.dp,30.dp))
 
 }
