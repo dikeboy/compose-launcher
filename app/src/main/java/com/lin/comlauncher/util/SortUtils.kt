@@ -154,7 +154,6 @@ object SortUtils {
                 }else{
                     if(mIndex>=currenPos) mIndex+1 else mIndex
                 }
-//                LogUtils.e("name=${ai.name} pos=${index} curr=${ai.cellPos}")
 
                 ai.orignX = (index % 4) * ai.width
                 ai.orignY =

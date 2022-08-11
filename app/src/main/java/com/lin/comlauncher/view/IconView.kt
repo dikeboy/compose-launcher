@@ -112,16 +112,20 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                             applist.forEach continuing@{ appInfo ->
                                                 if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
                                                     return@continuing
+                                                if(xscale>0)
                                                 appInfo.posX =
                                                     appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
+                                                if(yscale>0)
                                                 appInfo.posY =
                                                     appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
                                             }
                                             toolList.forEach continuing@{ appInfo->
                                                 if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
                                                     return@continuing
+                                                if(xscale>0)
                                                 appInfo.posX =
                                                     appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
+                                                if(yscale>0)
                                                 appInfo.posY =
                                                     appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
                                             }
