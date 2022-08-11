@@ -97,6 +97,8 @@ class HomeViewModel:ViewModel() {
                     ai.posY = dpHeight - dpWidth / 4
                     ai.posX = mToolBarList.size % 4 * dpWidth / 4
                     ai.position = LauncherConfig.POSITION_TOOLBAR
+                    ai.showText = false
+                    ai.cellPos = mToolBarList.size;
                     mToolBarList.add(ai)
                 } else {
                     ai.width = dpWidth / 4;

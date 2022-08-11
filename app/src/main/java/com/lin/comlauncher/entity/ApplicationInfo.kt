@@ -24,6 +24,8 @@ class ApplicationInfo(
     var position:Int = 0,
     var iconWidth:Int = 0,
     var iconHeight:Int = 0,
+    var dragInfo:ApplicationInfo? =null,
+    var showText:Boolean = true
 )
 
 class AppInfoBaseBean(
