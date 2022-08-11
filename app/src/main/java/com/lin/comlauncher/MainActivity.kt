@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
+import coil.compose.rememberAsyncImagePainter
 import com.gyf.immersionbar.ImmersionBar
 import com.lin.comlauncher.common.PermissionManager
 import com.lin.comlauncher.ui.theme.ComposeLauncherTheme
@@ -106,11 +107,20 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
 
     ComposeLauncherTheme {
         Scaffold(
-            content = {
-                Image(painter = painterResource(id = R.drawable.wall_paper),contentDescription="", modifier = Modifier
+            content = { padding ->
+                Image(painter = painterResource(id = R.drawable.wall_paper),contentDescription="", modifier = Modifier.padding(padding)
                     .fillMaxHeight()
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop)
+
+//                Image(
+//                    painter = rememberAsyncImagePainter( R.drawable.wall_paper),
+//                    contentDescription = null,
+//                    modifier = Modifier.padding(padding)
+//                            .fillMaxHeight()
+//                            .fillMaxWidth(),
+//                    contentScale = ContentScale.Crop
+//                )
                 var version = versionLiveState.value
                 if(applist.homeList?.size?:0==0){
                     InitView(applist)

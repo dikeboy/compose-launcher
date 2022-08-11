@@ -26,6 +26,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
 import com.lin.comlauncher.entity.AppInfoBaseBean
 import com.lin.comlauncher.entity.AppPos
 import com.lin.comlauncher.entity.ApplicationInfo
@@ -199,8 +201,13 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
 @Composable
 fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
     it.icon?.let { icon ->
+//        Image(
+//            icon.asImageBitmap(), contentDescription = "",
+//            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
+//        )
         Image(
-            icon.asImageBitmap(), contentDescription = "",
+            painter = rememberAsyncImagePainter(icon),
+            contentDescription = null,
             modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
         )
 
