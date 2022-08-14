@@ -5,6 +5,8 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
 import com.lin.comlauncher.entity.ApplicationInfo
 import com.lin.comlauncher.entity.CellBean
+import com.lin.comlauncher.view.isStop
+import java.util.Collections
 
 object SortUtils {
     fun calculPos(
@@ -40,8 +42,7 @@ object SortUtils {
     }
 
     fun resetChoosePos(
-        list: ArrayList<ApplicationInfo>, app: ApplicationInfo,
-        toolList:ArrayList<ApplicationInfo>
+        list: ArrayList<ApplicationInfo>, app: ApplicationInfo
     ) {
         list.forEach continuing@{
             if (app == it)
@@ -49,15 +50,11 @@ object SortUtils {
             it.orignX = it.posX
             it.orignY = it.posY
         }
-        toolList.forEach continuing@{
-            if (app == it)
-                return@continuing
-            it.orignX = it.posX
-            it.orignY = it.posY
-        }
+
         var currenPos = findCurrentCell(app.posX, app.posY)
         var prePos = findCurrentCell(app.orignX,app.orignY)
-        LogUtils.e("currentPos=${-currenPos-100} prePos=$prePos pos=${app.position} pos=${app.position}")
+        LogUtils.e("currentPos=$currenPos prePos=$prePos pos=${app.position} pos=${app.position}")
+        var totalList = list.filter { it.position ==LauncherConfig.POSITION_TOOLBAR }
 
         if(app.position==LauncherConfig.POSITION_HOME){
             if(currenPos==prePos)
@@ -65,8 +62,8 @@ object SortUtils {
             if(currenPos<=-100){
                 currenPos = -currenPos-100;
 
-                toolList.firstOrNull { it.cellPos ==currenPos }?.let { destApp->
-                    LogUtils.e("1  ${app.dragInfo==destApp}")
+                totalList.firstOrNull { it.cellPos ==currenPos &&it.position==LauncherConfig.POSITION_TOOLBAR }?.let { destApp->
+                    LogUtils.e("findapp ${destApp.name}")
                     var appCell = destApp.cellPos;
                     if(destApp==app.dragInfo){
 
@@ -80,6 +77,7 @@ object SortUtils {
                             destApp.orignY = dragInfo.orignY
                             destApp.cellPos = dragInfo.cellPos
                             destApp.showText = true
+                            destApp.position = LauncherConfig.POSITION_HOME
 
                             dragInfo.orignX = app.orignX
                             dragInfo.orignY = app.orignY
@@ -87,6 +85,7 @@ object SortUtils {
                             dragInfo.needMoveY = dragInfo.posY-app.posY
                             dragInfo.cellPos = app.cellPos
                             dragInfo.showText = false
+                            dragInfo.position = LauncherConfig.POSITION_TOOLBAR
 
                             app.orignX = destApp.posX
                             app.orignY = destApp.posY
@@ -95,6 +94,7 @@ object SortUtils {
                             app.dragInfo = destApp
                             app.cellPos = appCell
                             app.showText = false
+                            app.position = LauncherConfig.POSITION_TOOLBAR
                         }else{
                             destApp.needMoveX = -app.orignX+destApp.posX;
                             destApp.needMoveY = -app.orignY+destApp.posY;
@@ -147,6 +147,8 @@ object SortUtils {
             app.cellPos = currenPos
             var mIndex = 0
             list.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
+                if(ai.position==LauncherConfig.POSITION_TOOLBAR)
+                    return@forEachIndexed;
                 var index =if(ai==app)
                     currenPos
                 else if(currenPos<prePos){
@@ -170,7 +172,7 @@ object SortUtils {
             currenPos = -currenPos-100;
             app.cellPos = currenPos
             var mIndex = 0
-            toolList.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
+            totalList.sortedBy { it.cellPos }.forEachIndexed { pos, ai ->
                 var index =if(ai==app)
                     currenPos
                 else if(currenPos<prePos){
@@ -212,20 +214,25 @@ object SortUtils {
         return cellX + cellY * 4
     }
 
-    fun swapChange(applist:ArrayList<ApplicationInfo>,toolList: ArrayList<ApplicationInfo>,app: ApplicationInfo) {
+    fun swapChange(app: ApplicationInfo) {
         var app1 = app
         var app2 = app.dragInfo
         if(app1!=null&&app2!=null){
-            var index = toolList.indexOf(app2);
-            toolList.remove(app2)
-            toolList.add(index,app1);
-            applist.remove(app1);
-            applist.add(app2);
+            var cellIndex = app.cellIndex
+            var cellPos = app.cellPos
+            var position = app.position
 
-            app.position = LauncherConfig.POSITION_TOOLBAR
-            app2.position = LauncherConfig.POSITION_HOME
+            app.cellPos = app2.cellPos
+            app.cellIndex = app2.cellIndex
+            app.position = app2.position
+//
+            app2.cellPos = cellPos
+            app2.cellIndex = cellIndex
+            app2.position = position
+            LogUtils.e("pos=${app1.name} ${app1.position}  pos2=${app2.name} ${app2.position}")
+
         }
-
+        isStop = true;
         app.dragInfo=null
     }
 

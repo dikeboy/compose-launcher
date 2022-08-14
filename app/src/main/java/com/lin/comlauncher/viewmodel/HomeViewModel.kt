@@ -53,18 +53,17 @@ class HomeViewModel:ViewModel() {
             intent.addCategory(Intent.CATEGORY_LAUNCHER)
             var appInfoBaseBean = AppInfoBaseBean()
 
-            var mlist = ArrayList<ArrayList<ApplicationInfo>>();
             var cacheList = ArrayList<ApplicationInfo>()
-            var mToolBarList = ArrayList<ApplicationInfo>()
 
             var findSet = HashSet<String>()
             var index = 0;
+            var cellIndex =-1
+            var toolBarSize= 0
             pm.queryIntentActivities(intent, 0)?.forEach continuing@{ resolveInfo ->
                 if (findSet.contains(resolveInfo.activityInfo.packageName))
                     return@continuing
                 if (index == 10)
                     findSet.add(resolveInfo.activityInfo.packageName)
-                index %= 20;
                 var ai = ApplicationInfo(
                     name = resolveInfo.loadLabel(pm).toString(),
                     resolveInfo.resolvePackageName
@@ -91,16 +90,21 @@ class HomeViewModel:ViewModel() {
                 LauncherConfig.HOME_TOOLBAR_START = dpHeight - dpWidth / 4;
                 ai.iconWidth = LauncherConfig.CELL_ICON_WIDTH;
                 ai.iconHeight = LauncherConfig.CELL_ICON_WIDTH;
-                if (LauncherUtils.isToolBarApplication(ai.pageName) && mToolBarList.size < 4) {
+                if (LauncherUtils.isToolBarApplication(ai.pageName) && toolBarSize < 4) {
                     ai.width = dpWidth / 4;
                     ai.height = dpWidth / 4;
                     ai.posY = dpHeight - dpWidth / 4
-                    ai.posX = mToolBarList.size % 4 * dpWidth / 4
+                    ai.posX =toolBarSize % 4 * dpWidth / 4
                     ai.position = LauncherConfig.POSITION_TOOLBAR
                     ai.showText = false
-                    ai.cellPos = mToolBarList.size;
-                    mToolBarList.add(ai)
+                    ai.cellPos = toolBarSize;
+                    toolBarSize++;
+                    cacheList.add(ai)
                 } else {
+                    if(index%20==0)
+                        cellIndex++ // add next page
+                    index %= 20
+
                     ai.width = dpWidth / 4;
                     ai.height = LauncherConfig.HOME_CELL_HEIGHT
                     ai.posX = (index % 4) * dpWidth / 4
@@ -108,25 +112,19 @@ class HomeViewModel:ViewModel() {
                         index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
                     ai.position = LauncherConfig.POSITION_HOME
                     cacheList.add(ai)
-                    if (index == 19) {
-                        cacheList = ArrayList()
-                    }
-                    if (index == 0) {
-                        mlist.add(cacheList)
-                    }
                     ai.cellPos = index
+                    ai.cellIndex = cellIndex
                     index++;
                 }
                 ai.orignX = ai.posX
                 ai.orignY = ai.posY
                 LauncherConfig.HOME_CELL_WIDTH = ai.width
             }
-
+            appInfoBaseBean.cellNum = cellIndex+1;
             appInfoBaseBean.homeList.clear()
-            appInfoBaseBean.homeList.addAll(mlist)
-            appInfoBaseBean.toobarList = mToolBarList
+            appInfoBaseBean.homeList.addAll(cacheList)
             var userTime = System.currentTimeMillis() - startTime;
-            Log.e("linlog", "loadA==${mlist.size} toolbar=${mToolBarList.size} time=$userTime")
+            Log.e("linlog", " toolbar=${cacheList.size} time=$userTime")
             infoBaseBean = appInfoBaseBean;
             loadInfoLiveData.postValue(++currentVersion)
         }

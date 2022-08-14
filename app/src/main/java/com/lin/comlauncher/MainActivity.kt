@@ -121,6 +121,7 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
 //                            .fillMaxWidth(),
 //                    contentScale = ContentScale.Crop
 //                )
+                LogUtils.e("drag")
                 var version = versionLiveState.value
                 if(applist.homeList?.size?:0==0){
                     InitView(applist)

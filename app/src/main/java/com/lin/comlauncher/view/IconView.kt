@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -39,7 +40,6 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
-             toolList:ArrayList<ApplicationInfo>,
              coroutineScope: CoroutineScope,coroutineAnimScope:CoroutineScope,
              dragInfoState:MutableState<ApplicationInfo?>,animFinish:MutableState<Boolean>,
              offsetX:MutableState<Dp>,offsetY:MutableState<Dp>,
@@ -48,6 +48,17 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
     var posX = it.posX
     var posY = it.posY
     var context = LocalContext.current;
+    if(it.cellIndex>0) {
+        Column(
+            modifier = Modifier
+                    .size(it.width.dp, it.height.dp)
+                    .offset(posX.dp, posY.dp)
+                    .alpha(if (it.isDrag) 0f else 1f)){
+            IconViewDetail(it,it.showText)
+        }
+
+        return;
+    }
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .size(it.width.dp, it.height.dp)
@@ -65,7 +76,6 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                         LogUtils.e("drag app ${it.name}")
                         dragInfoState.value = it;
                         dragUpState.value =true
-
                         coroutineAnimScope.launch {
                             var preCell =
                                 SortUtils.findCurrentCell(it.posX, it.posY)
@@ -99,7 +109,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                         )
                                         SortUtils.resetChoosePos(
                                             applist,
-                                            it, toolList
+                                            it
                                         )
                                         var xscale = 100
                                         var yscale = 100
@@ -119,16 +129,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                                 appInfo.posY =
                                                     appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
                                             }
-                                            toolList.forEach continuing@{ appInfo->
-                                                if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
-                                                    return@continuing
-                                                if(xscale>0)
-                                                appInfo.posX =
-                                                    appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
-                                                if(yscale>0)
-                                                appInfo.posY =
-                                                    appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
-                                            }
+
                                             offsetX.value = appPos.x.dp
                                             offsetY.value = appPos.y.dp
                                         }
@@ -138,12 +139,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                             appInfo.orignY = appInfo.posY
                                             appInfo.orignX = appInfo.posX
                                         }
-                                        toolList.forEach { appInfo ->
-                                            if (appInfo == it)
-                                                return@forEach
-                                            appInfo.orignY = appInfo.posY
-                                            appInfo.orignX = appInfo.posX
-                                        }
+
                                         animFinish.value = false
                                     }
                                 }
@@ -172,7 +168,10 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                 offsetY.value = appPos.y.dp
                             }
                             dragInfoState.value = null;
-                          SortUtils.swapChange(applist = applist,toolList = toolList,app=it)
+//                            delay(50)
+                            LogUtils.e("drag End")
+
+                          SortUtils.swapChange(app=it)
                         }
                     },
                     onDragCancel = {
@@ -205,10 +204,10 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
 @Composable
 fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
     it.icon?.let { icon ->
-//        Image(
-//            icon.asImageBitmap(), contentDescription = "",
-//            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
-//        )
+        Image(
+            icon.asImageBitmap(), contentDescription = "",
+            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
+        )
         Image(
             painter = rememberAsyncImagePainter(icon),
             contentDescription = null,

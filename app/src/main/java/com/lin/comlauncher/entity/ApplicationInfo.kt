@@ -25,12 +25,14 @@ class ApplicationInfo(
     var iconWidth:Int = 0,
     var iconHeight:Int = 0,
     var dragInfo:ApplicationInfo? =null,
-    var showText:Boolean = true
+    var showText:Boolean = true,
+    var cellIndex:Int = 0,
+    var visible:Boolean = true
 )
 
 class AppInfoBaseBean(
-    var homeList:ArrayList<ArrayList<ApplicationInfo>> = ArrayList(),
-    var toobarList:ArrayList<ApplicationInfo> = ArrayList()
+    var homeList:ArrayList<ApplicationInfo> = ArrayList(),
+    var cellNum:Int = 0
 )
 
 data class AppPos(
