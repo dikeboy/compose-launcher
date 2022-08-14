@@ -199,19 +199,20 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
             ) {
                 LauncherUtils.startApp(context, it)
             }) {
-        IconViewDetail(it,it.showText)
+        IconViewDetail(it,it.showText,dragUpState)
     }
 }
 @Composable
-fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
-    it.icon?.let { icon ->
+fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true, dragUpState:MutableState<Boolean>){
+    it.imageBitmap?.let { icon ->
 //        Image(
 //            icon.asImageBitmap(), contentDescription = "",
 //            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
 //        )
+
         Image(
-            painter = rememberAsyncImagePainter(icon),
-            contentDescription = null,
+            painter = icon,
+            contentDescription = it.pageName,
             modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
         )
 

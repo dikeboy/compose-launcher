@@ -1,7 +1,10 @@
 package com.lin.comlauncher.entity
 
 import android.graphics.Bitmap
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.unit.Dp
+import coil.compose.AsyncImagePainter
 
 class ApplicationInfo(
     var name:String?=null,
@@ -25,7 +28,8 @@ class ApplicationInfo(
     var iconWidth:Int = 0,
     var iconHeight:Int = 0,
     var dragInfo:ApplicationInfo? =null,
-    var showText:Boolean = true
+    var showText:Boolean = true,
+    var imageBitmap: AsyncImagePainter? =null
 )
 
 class AppInfoBaseBean(

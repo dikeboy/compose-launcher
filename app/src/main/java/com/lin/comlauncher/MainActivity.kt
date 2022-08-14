@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.*
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -122,9 +123,19 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
 //                    contentScale = ContentScale.Crop
 //                )
                 var version = versionLiveState.value
+                var time1 = System.currentTimeMillis()
                 if(applist.homeList?.size?:0==0){
                     InitView(applist)
                 }else{
+                    applist.homeList.forEach {
+                        it.forEach {
+                            it.imageBitmap =  rememberAsyncImagePainter(it.icon)
+                        }
+                    }
+                    applist.toobarList.forEach {
+                        it.imageBitmap =  rememberAsyncImagePainter(it.icon)
+                    }
+                    LogUtils.e("load time ${System.currentTimeMillis()-time1}")
                     DesktopView(lists = applist,viewModel = homeViewModel)
                 }
             }
