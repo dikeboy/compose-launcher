@@ -77,7 +77,7 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                             .width(width = width.dp)
                             .height(height = height.dp)
                 ) {
-                    if ((currentSelect.value == index ))
+                    if (Math.abs(currentSelect.value-index)<=1)
                         MyBasicColumn() {
                             applist.forEach {
                                 IconView(
