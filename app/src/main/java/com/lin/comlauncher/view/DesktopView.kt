@@ -47,7 +47,6 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
 
     var homeList = lists.homeList
     var toolBarList =lists.toobarList
-
     Row(
         modifier = Modifier
                 .width(width = width.dp)
@@ -78,14 +77,14 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                             .width(width = width.dp)
                             .height(height = height.dp)
                 ) {
-                    if ((currentSelect.value == index && dragInfoState.value != null)
-                        || (dragInfoState.value == null&&Math.abs(currentSelect.value-index)<=1))
+                    if ((currentSelect.value == index ))
                         MyBasicColumn() {
                             applist.forEach {
                                 IconView(
                                     it = it,
                                     applist = applist,
-                                    toolBarList!!,
+                                    toolList = toolBarList!!,
+                                    state = state,
                                     coroutineScope = coroutineScope,
                                     coroutineAnimScope = coroutineAnimScope,
                                     dragInfoState = dragInfoState,
@@ -129,6 +128,7 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                         it = it,
                         applist = homelist,
                         toolList = applist,
+                        state = state,
                         coroutineScope = coroutineScope,
                         coroutineAnimScope = coroutineAnimScope,
                         dragInfoState = dragInfoState,
@@ -142,7 +142,6 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
 //
     }
 
-    var pos = offsetY.value
     if(dragUpState.value){
         dragInfoState?.value?.let {
             Column(
@@ -151,6 +150,7 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                         .size(it.width.dp, it.height.dp)
                         .offset(it.posX.dp, it.posY.dp)
             ) {
+//                LogUtils.e("dragUp = ${dragUpState.value}")
                 IconViewDetail(it = it,dragUpState=dragUpState)
             }
         }

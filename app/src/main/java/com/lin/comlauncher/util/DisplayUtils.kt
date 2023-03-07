@@ -63,7 +63,7 @@ object DisplayUtils {
 
     @SuppressLint("NewApi")
     fun checkDeviceHasNavigationBar(activity: Context?): Boolean {
-        val hasMenuKey = ViewConfiguration.get(activity)
+        val hasMenuKey = ViewConfiguration.get(activity!!)
             .hasPermanentMenuKey()
         val hasBackKey = KeyCharacterMap
             .deviceHasKey(KeyEvent.KEYCODE_BACK)

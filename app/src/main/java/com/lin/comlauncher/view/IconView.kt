@@ -1,9 +1,12 @@
 package com.lin.comlauncher.view
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
@@ -20,6 +23,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
@@ -40,6 +44,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
              toolList:ArrayList<ApplicationInfo>,
+             state: ScrollState,
              coroutineScope: CoroutineScope,coroutineAnimScope:CoroutineScope,
              dragInfoState:MutableState<ApplicationInfo?>,animFinish:MutableState<Boolean>,
              offsetX:MutableState<Dp>,offsetY:MutableState<Dp>,
@@ -65,8 +70,10 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                         LogUtils.e("drag app ${it.name}")
                         dragInfoState.value = it;
                         dragUpState.value =true
-
+//
                         coroutineAnimScope.launch {
+//                            state.scrollBy(width.dp.toPx())
+//                            state.animateScrollBy(width.dp.toPx())
                             var preCell =
                                 SortUtils.findCurrentCell(it.posX, it.posY)
 
@@ -209,7 +216,6 @@ fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true, dragUpState:Mutab
 //            icon.asImageBitmap(), contentDescription = "",
 //            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
 //        )
-
         Image(
             painter = icon,
             contentDescription = it.pageName,
