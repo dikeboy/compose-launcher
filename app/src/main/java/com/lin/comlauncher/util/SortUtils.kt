@@ -151,7 +151,7 @@ object SortUtils {
                     if(mIndex>=currenPos) mIndex+1 else mIndex
                 }
 
-                ai.orignX = (index % 4) * ai.width
+                ai.orignX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT+(index % 4) * ai.width
                 ai.orignY =
                     index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
                 ai.needMoveX = ai.posX - ai.orignX
@@ -175,7 +175,7 @@ object SortUtils {
                     if(mIndex>=currenPos) mIndex+1 else mIndex
                 }
 
-                ai.orignX = (index) * ai.width
+                ai.orignX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT+(index) * ai.width
                 ai.orignY = LauncherConfig.HOME_HEIGHT-LauncherConfig.HOME_CELL_WIDTH;
                 ai.needMoveX = ai.posX - ai.orignX
                 ai.needMoveY = ai.posY - ai.orignY
@@ -223,9 +223,17 @@ object SortUtils {
         return null;
     }
     fun findCurrentCell(posX: Int, posY: Int): Int {
-        var padding = 10
         if (posY < LauncherConfig.DEFAULT_TOP_PADDING-LauncherConfig.CELL_ICON_WIDTH/2) {
             return -1
+        }
+        var centerX = posX+LauncherConfig.HOME_CELL_WIDTH
+//        LogUtils.e("posX = $centerX width=${LauncherConfig.HOME_WIDTH}")
+
+        if(centerX<=0){
+            return -10;
+        }
+        else if(centerX>=LauncherConfig.HOME_WIDTH){
+            return -11;
         }
         if(posY>=LauncherConfig.HOME_TOOLBAR_START-40){
             var pos = (posX +LauncherConfig.HOME_CELL_WIDTH/2)/LauncherConfig.HOME_CELL_WIDTH;
@@ -237,7 +245,6 @@ object SortUtils {
 
         var cellY = (posY - LauncherConfig.DEFAULT_TOP_PADDING
                 +LauncherConfig.HOME_CELL_HEIGHT/2)/ LauncherConfig.HOME_CELL_HEIGHT
-
 //        LogUtils.e("cell=$cellX  cellY=$cellY de=${posX / (LauncherConfig.HOME_WIDTH/8)}")
 
         return cellX + cellY * 4

@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.Layout
+import com.lin.comlauncher.util.LogUtils
 import kotlin.math.abs
 import kotlin.reflect.KProperty
 
@@ -56,7 +57,7 @@ class PagerFling(private val flingDecay: DecayAnimationSpec<Float>,val state:Scr
 
             var velocityLeft = initialVelocity
             var startPos = state.value
-            animate(state.value.toFloat(),destValue,0f){value, velocity ->
+            animate(state.value.toFloat(),destValue,0f,tween(300)){value, velocity ->
                 velocityLeft = value-startPos
                 scrollBy(velocityLeft)
                 startPos = value.toInt()

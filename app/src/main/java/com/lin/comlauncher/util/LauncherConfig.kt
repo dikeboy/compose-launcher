@@ -9,5 +9,7 @@ object LauncherConfig {
     var HOME_TOOLBAR_START= 100
     var POSITION_HOME = 1;
     var POSITION_TOOLBAR = 2;
-    var CELL_ICON_WIDTH = 56;
+    var CELL_ICON_WIDTH = 56
+    var HOME_DEFAULT_PADDING_LEFT = 10;
+    var HOME_DRAG_PAGGING_PADDING = 20;
 }

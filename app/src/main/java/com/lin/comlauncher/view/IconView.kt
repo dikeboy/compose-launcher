@@ -1,5 +1,7 @@
 package com.lin.comlauncher.view
 
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
@@ -16,6 +18,8 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -52,7 +56,10 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
 ) {
     var posX = it.posX
     var posY = it.posY
-    var context = LocalContext.current;
+    var context = LocalContext.current
+    var width = LocalConfiguration.current.screenWidthDp
+    var scrollPage =remember { mutableStateOf(false) }
+
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .size(it.width.dp, it.height.dp)
@@ -81,7 +88,7 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                 var preX = it.posX
                                 var preY = it.posY
 
-                                delay(200)
+                                delay(300)
                                 if(!it.isDrag)
                                     break
                                 var curX = it.posX
@@ -96,6 +103,16 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                                                 curX,
                                                 curY
                                             )
+//                                        LogUtils.e("cellIndex=${cellIndex}")
+//                                        if(cellIndex==-10){
+//                                            state.animateScrollBy(-width.dp.toPx())
+//                                            scrollPage.value = true
+//                                            return@run
+//                                        }else if(cellIndex==-11){
+//                                            state.animateScrollBy(width.dp.toPx())
+//                                            scrollPage.value = true
+//                                            return@run
+//                                        }
                                         if (cellIndex == preCell)
                                             return@run
                                         preCell = cellIndex
@@ -183,10 +200,16 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
                         }
                     },
                     onDragCancel = {
-                        it.isDrag = false
-                        dragUpState.value = false
-                        LogUtils.e("drag cancle")
-                        dragInfoState.value = null
+                        if(it.isDrag){
+                            it.isDrag = false
+                            if(!scrollPage.value){
+                                dragUpState.value = false
+                                dragInfoState.value = null
+                            }
+                            LogUtils.e("drag cancle ${scrollPage.value}")
+
+                        }
+
                     }
                 ) { change, dragAmount ->
                     change.consumeAllChanges()

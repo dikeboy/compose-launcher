@@ -167,7 +167,7 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
         lastTime = System.currentTimeMillis();
 
     }
-    LogUtils.e("load time ${System.currentTimeMillis()-time1}")
+//    LogUtils.e("load time ${System.currentTimeMillis()-time1}")
 
 }
 

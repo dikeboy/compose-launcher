@@ -58,7 +58,9 @@ class HomeViewModel:ViewModel() {
             var mToolBarList = ArrayList<ApplicationInfo>()
 
             var findSet = HashSet<String>()
-            var index = 0;
+            var index = 0
+            var cellWidth = (dpWidth-LauncherConfig.HOME_DEFAULT_PADDING_LEFT*2)/4
+
             pm.queryIntentActivities(intent, 0)?.forEach continuing@{ resolveInfo ->
                 if (findSet.contains(resolveInfo.activityInfo.packageName))
                     return@continuing
@@ -92,18 +94,18 @@ class HomeViewModel:ViewModel() {
                 ai.iconWidth = LauncherConfig.CELL_ICON_WIDTH;
                 ai.iconHeight = LauncherConfig.CELL_ICON_WIDTH;
                 if (LauncherUtils.isToolBarApplication(ai.pageName) && mToolBarList.size < 4) {
-                    ai.width = dpWidth / 4;
-                    ai.height = dpWidth / 4;
+                    ai.width = cellWidth;
+                    ai.height = cellWidth;
                     ai.posY = dpHeight - dpWidth / 4
-                    ai.posX = mToolBarList.size % 4 * dpWidth / 4
+                    ai.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT+mToolBarList.size % 4 * cellWidth
                     ai.position = LauncherConfig.POSITION_TOOLBAR
                     ai.showText = false
                     ai.cellPos = mToolBarList.size;
                     mToolBarList.add(ai)
                 } else {
-                    ai.width = dpWidth / 4;
+                    ai.width = cellWidth;
                     ai.height = LauncherConfig.HOME_CELL_HEIGHT
-                    ai.posX = (index % 4) * dpWidth / 4
+                    ai.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT+(index % 4) * cellWidth
                     ai.posY =
                         index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
                     ai.position = LauncherConfig.POSITION_HOME

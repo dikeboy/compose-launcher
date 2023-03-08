@@ -135,7 +135,7 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                     applist.toobarList.forEach {
                         it.imageBitmap =  rememberAsyncImagePainter(it.icon)
                     }
-                    LogUtils.e("load time ${System.currentTimeMillis()-time1}")
+//                    LogUtils.e("load time ${System.currentTimeMillis()-time1}")
                     DesktopView(lists = applist,viewModel = homeViewModel)
                 }
             }
