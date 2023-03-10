@@ -1,10 +1,6 @@
 package com.lin.comlauncher.util
 
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.dp
 import com.lin.comlauncher.entity.ApplicationInfo
-import com.lin.comlauncher.entity.CellBean
 
 object SortUtils {
     fun calculPos(
@@ -191,6 +187,41 @@ object SortUtils {
 
     }
 
+    fun findCurrentCellByPos(posX: Int, posY: Int): Int {
+        var padding = 10
+        if (posY < LauncherConfig.DEFAULT_TOP_PADDING) {
+            return -1
+        }
+        if(posX<=LauncherConfig.HOME_CELL_LEFT_PADDING)
+            return -10;
+        if(posX>=LauncherConfig.HOME_WIDTH-LauncherConfig.HOME_CELL_LEFT_PADDING)
+            return -11;
+
+        if(posY>=LauncherConfig.HOME_TOOLBAR_START-40){
+            var pos = (posX +LauncherConfig.HOME_CELL_WIDTH/2)/LauncherConfig.HOME_CELL_WIDTH;
+            return -pos - 100;
+        }
+
+        var cellX = (posX-LauncherConfig.HOME_CELL_LEFT_PADDING)/(LauncherConfig.HOME_CELL_WIDTH);
+
+
+        var cellY = (posY - LauncherConfig.DEFAULT_TOP_PADDING)/ LauncherConfig.HOME_CELL_HEIGHT
+
+        LogUtils.e("cell=$cellX  cellY=$cellY de=${posX / (LauncherConfig.HOME_WIDTH/8)}")
+
+        return cellX + cellY * 4
+    }
+
+    fun findCurrentActorPix(list:List<ApplicationInfo>,pixX: Int,pixY: Int):ApplicationInfo?{
+        var posX = DisplayUtils.pxToDp(pixX);
+        var posY = DisplayUtils.pxToDp(pixY)
+        list.forEach {
+            if(posX>=it.posX&&posX<it.posX+it.width&&posY>=it.posY&&posY<it.posY+it.height){
+                return it;
+            }
+        }
+        return null;
+    }
     fun findCurrentCell(posX: Int, posY: Int): Int {
         var padding = 10
         if (posY < LauncherConfig.DEFAULT_TOP_PADDING-LauncherConfig.CELL_ICON_WIDTH/2) {
