@@ -44,7 +44,6 @@ class HomeViewModel:ViewModel() {
     private set
 
     fun loadApp(pm:PackageManager,width:Int,height:Int){
-
         viewModelScope.launch(Dispatchers.IO) {
             var startTime = System.currentTimeMillis();
             var dpWidth = DisplayUtils.pxToDp(width)
@@ -60,13 +59,16 @@ class HomeViewModel:ViewModel() {
             var findSet = HashSet<String>()
             var index = 0
             var cellWidth = (dpWidth-LauncherConfig.HOME_DEFAULT_PADDING_LEFT*2)/4
-
+            var cellMax = 18
             pm.queryIntentActivities(intent, 0)?.forEach continuing@{ resolveInfo ->
                 if (findSet.contains(resolveInfo.activityInfo.packageName))
                     return@continuing
+//                if(mlist.size>1){
+//                    return@continuing
+//                }
                 if (index == 10)
                     findSet.add(resolveInfo.activityInfo.packageName)
-                index %= 20;
+                index %= cellMax;
                 var ai = ApplicationInfo(
                     name = resolveInfo.loadLabel(pm).toString(),
                     resolveInfo.resolvePackageName
@@ -96,7 +98,7 @@ class HomeViewModel:ViewModel() {
                 if (LauncherUtils.isToolBarApplication(ai.pageName) && mToolBarList.size < 4) {
                     ai.width = cellWidth;
                     ai.height = cellWidth;
-                    ai.posY = dpHeight - dpWidth / 4
+                    ai.posY = dpHeight - cellWidth
                     ai.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT+mToolBarList.size % 4 * cellWidth
                     ai.position = LauncherConfig.POSITION_TOOLBAR
                     ai.showText = false
@@ -110,7 +112,7 @@ class HomeViewModel:ViewModel() {
                         index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
                     ai.position = LauncherConfig.POSITION_HOME
                     cacheList.add(ai)
-                    if (index == 19) {
+                    if (index == cellMax-1) {
                         cacheList = ArrayList()
                     }
                     if (index == 0) {

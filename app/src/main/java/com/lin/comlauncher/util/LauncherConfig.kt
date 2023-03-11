@@ -12,4 +12,7 @@ object LauncherConfig {
     var CELL_ICON_WIDTH = 56
     var HOME_DEFAULT_PADDING_LEFT = 10;
     var HOME_DRAG_PAGGING_PADDING = 20;
+
+    var CELL_POS_HOME_LEFT = -10;
+    var CELL_POS_HOME_RIGHT = -11;
 }

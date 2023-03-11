@@ -46,182 +46,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
-             toolList:ArrayList<ApplicationInfo>,
-             state: ScrollState,
-             coroutineScope: CoroutineScope,coroutineAnimScope:CoroutineScope,
-             dragInfoState:MutableState<ApplicationInfo?>,animFinish:MutableState<Boolean>,
-             offsetX:MutableState<Dp>,offsetY:MutableState<Dp>,
+fun IconView(it: ApplicationInfo,
              dragUpState:MutableState<Boolean>
 ) {
     var posX = it.posX
     var posY = it.posY
     var context = LocalContext.current
-    var width = LocalConfiguration.current.screenWidthDp
-    var scrollPage =remember { mutableStateOf(false) }
 
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .size(it.width.dp, it.height.dp)
             .offset(posX.dp, posY.dp)
             .alpha(if (it.isDrag) 0f else 1f)
-            .pointerInput(it) {
-                detectDragGesturesAfterLongPress(
-                    onDragStart = { off ->
-                        it.isDrag = true
-                        it.orignX = it.posX
-                        it.orignY = it.posY
-                        it.posFx = it.posX.dp.toPx()
-                        it.posFy = it.posY.dp.toPx()
-                        LauncherUtils.vibrator(context = context)
-                        LogUtils.e("drag app ${it.name}")
-                        dragInfoState.value = it;
-                        dragUpState.value =true
-//
-                        coroutineAnimScope.launch {
-//                            state.scrollBy(width.dp.toPx())
-//                            state.animateScrollBy(width.dp.toPx())
-                            var preCell =
-                                SortUtils.findCurrentCell(it.posX, it.posY)
-
-                            while (it.isDrag) {
-                                var preX = it.posX
-                                var preY = it.posY
-
-                                delay(300)
-                                if(!it.isDrag)
-                                    break
-                                var curX = it.posX
-                                var curY = it.posY
-                                run {
-                                    if (Math.abs(preX - curX) < 10 && Math.abs(
-                                            preY - curY
-                                        ) < 10 && !animFinish.value
-                                    ) {
-                                        var cellIndex =
-                                            SortUtils.findCurrentCell(
-                                                curX,
-                                                curY
-                                            )
-//                                        LogUtils.e("cellIndex=${cellIndex}")
-//                                        if(cellIndex==-10){
-//                                            state.animateScrollBy(-width.dp.toPx())
-//                                            scrollPage.value = true
-//                                            return@run
-//                                        }else if(cellIndex==-11){
-//                                            state.animateScrollBy(width.dp.toPx())
-//                                            scrollPage.value = true
-//                                            return@run
-//                                        }
-                                        if (cellIndex == preCell)
-                                            return@run
-                                        preCell = cellIndex
-                                        LogUtils.e(
-                                            "disx =${preX - curX}  disY=${preY - curY} " +
-                                                    "cellIndex=${cellIndex} posX=${it.posX} " +
-                                                    "posY=${it.posY}"
-                                        )
-                                        SortUtils.resetChoosePos(
-                                            applist,
-                                            it, toolList
-                                        )
-                                        var xscale = 100
-                                        var yscale = 100
-                                        animFinish.value = true
-                                        DoTranslateAnim(
-                                            AppPos(0, 0),
-                                            AppPos(100, 100),
-                                            200
-                                        ) { appPos, velocity ->
-                                            applist.forEach continuing@{ appInfo ->
-                                                if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
-                                                    return@continuing
-                                                if(xscale>0)
-                                                appInfo.posX =
-                                                    appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
-                                                if(yscale>0)
-                                                appInfo.posY =
-                                                    appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
-                                            }
-                                            toolList.forEach continuing@{ appInfo->
-                                                if (appInfo == it||(appInfo.orignX==appInfo.posX&&appInfo.orignY==appInfo.posY))
-                                                    return@continuing
-                                                if(xscale>0)
-                                                appInfo.posX =
-                                                    appInfo.orignX + (xscale - appPos.x) * appInfo.needMoveX / xscale;
-                                                if(yscale>0)
-                                                appInfo.posY =
-                                                    appInfo.orignY + (yscale - appPos.y) * appInfo.needMoveY / yscale;
-                                            }
-                                            offsetX.value = appPos.x.dp
-                                            offsetY.value = appPos.y.dp
-                                        }
-                                        applist.forEach { appInfo ->
-                                            if (appInfo == it)
-                                                return@forEach
-                                            appInfo.orignY = appInfo.posY
-                                            appInfo.orignX = appInfo.posX
-                                        }
-                                        toolList.forEach { appInfo ->
-                                            if (appInfo == it)
-                                                return@forEach
-                                            appInfo.orignY = appInfo.posY
-                                            appInfo.orignX = appInfo.posX
-                                        }
-                                        animFinish.value = false
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    onDragEnd = {
-                        it.isDrag = false
-                        SortUtils.calculPos(applist, it)
-                        offsetX.value = it.posX.dp
-                        offsetY.value = it.posY.dp
-                        LogUtils.e("dragEnd ")
-                        dragUpState.value = false
-                        coroutineScope.launch {
-                            if(animFinish.value)
-                                delay(200)
-                            DoTranslateAnim(
-                                AppPos(it.posX, it.posY),
-                                AppPos(it.orignX, it.orignY),
-                                200
-                            )
-                            { appPos, velocity ->
-                                it.posX = appPos.x
-                                it.posY = appPos.y
-                                offsetX.value = appPos.x.dp
-                                offsetY.value = appPos.y.dp
-                            }
-                            dragInfoState.value = null;
-                          SortUtils.swapChange(applist = applist,toolList = toolList,app=it)
-                        }
-                    },
-                    onDragCancel = {
-                        if(it.isDrag){
-                            it.isDrag = false
-                            if(!scrollPage.value){
-                                dragUpState.value = false
-                                dragInfoState.value = null
-                            }
-                            LogUtils.e("drag cancle ${scrollPage.value}")
-
-                        }
-
-                    }
-                ) { change, dragAmount ->
-                    change.consumeAllChanges()
-                    it.posFx += dragAmount.x
-                    it.posFy += dragAmount.y
-//                                        LogUtils.e("offx=${ it.posFx.toDp()} offy=${it.posFy.toDp()}")
-                    it.posX = it.posFx.toDp().value.toInt()
-                    it.posY = it.posFy.toDp().value.toInt()
-                    offsetX.value=dragAmount.x.toDp()+offsetX.value
-                    offsetY.value= dragAmount.y.toDp()+offsetY.value
-                }
-            }
             .background(Color.Transparent)
             .clickable(
                 interactionSource = MutableInteractionSource(),
@@ -229,11 +65,11 @@ fun IconView(it: ApplicationInfo,applist:ArrayList<ApplicationInfo>,
             ) {
                 LauncherUtils.startApp(context, it)
             }) {
-        IconViewDetail(it,it.showText,dragUpState)
+        IconViewDetail(it,it.showText)
     }
 }
 @Composable
-fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true, dragUpState:MutableState<Boolean>){
+fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
     it.imageBitmap?.let { icon ->
 //        Image(
 //            icon.asImageBitmap(), contentDescription = "",

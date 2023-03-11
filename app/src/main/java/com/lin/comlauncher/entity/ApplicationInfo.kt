@@ -30,7 +30,11 @@ class ApplicationInfo(
     var dragInfo:ApplicationInfo? =null,
     var showText:Boolean = true,
     var imageBitmap: AsyncImagePainter? =null
-)
+){
+    override fun toString(): String {
+        return "${name}: position=${position}"
+    }
+}
 
 class AppInfoBaseBean(
     var homeList:ArrayList<ArrayList<ApplicationInfo>> = ArrayList(),
