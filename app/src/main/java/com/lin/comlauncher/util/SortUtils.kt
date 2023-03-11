@@ -3,6 +3,14 @@ package com.lin.comlauncher.util
 import com.lin.comlauncher.entity.ApplicationInfo
 
 object SortUtils {
+    fun calculLeftPos(toList:ArrayList<ApplicationInfo>,pagePos:Int, app: ApplicationInfo
+    ) {
+        if(toList.size>=LauncherConfig.HOME_PAGE_CELL_NUM){
+            return;
+        }
+        app.orignX = toList.size%4
+        app.orignY = toList.size/4
+    }
     fun calculPos(
         list: ArrayList<ApplicationInfo>, app: ApplicationInfo
     ) {

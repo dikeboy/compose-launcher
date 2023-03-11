@@ -110,7 +110,7 @@ class PagerLazyFling(private val flingDecay: DecayAnimationSpec<Float>,val state
 //            LogUtils.e("scrollOffset = ${state.firstVisibleItemScrollOffset} ${destValue} width=${childWidth}")
             var velocityLeft = 0f
             var startPos = scrollValue.toFloat()
-            animate(scrollValue.toFloat(),destValue,0f){value, velocity ->
+            animate(scrollValue.toFloat(),destValue,0f,tween(300, easing = LinearOutSlowInEasing)){value, velocity ->
                 velocityLeft = value-startPos
                 scrollBy(velocityLeft)
                 startPos = value

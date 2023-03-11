@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -23,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.input.pointer.consumeAllChanges
@@ -78,7 +80,7 @@ fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
         Image(
             painter = icon,
             contentDescription = it.pageName,
-            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
+            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp).clip(RoundedCornerShape(8.dp))
         )
 
     }
@@ -87,7 +89,7 @@ fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
             text = it.name ?: "",
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
-            fontSize = 14.sp,
+            fontSize = 13.sp,
             modifier = Modifier.padding(4.dp, 10.dp, 4.dp, 0.dp)
         )
     }

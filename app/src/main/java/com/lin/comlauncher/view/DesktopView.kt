@@ -62,101 +62,6 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
     var homeList = lists.homeList
     var toolBarList = lists.toobarList
 
-    lists.toobarList?.let { applist ->
-        var homelist = homeList?.getOrNull(currentSelect.value) ?: ArrayList()
-        MyBasicColumn(modifier = Modifier
-                .zIndex(zIndex = 0f)
-                .pointerInput(0) {
-                    detectLongPress(
-                        context = context,
-                        applist = homelist,
-                        toolList = toolBarList!!,
-                        homeList = homeList,
-                        coroutineScope = coroutineScope,
-                        coroutineAnimScope = coroutineAnimScope,
-                        dragInfoState = dragInfoState,
-                        animFinish = animFinish,
-                        offsetX = offsetX,
-                        offsetY = offsetY,
-                        dragUpState = dragUpState,
-                        state = state
-                    )
-                }
-        )
-        {
-            applist?.forEachIndexed { index, it ->
-                IconView(
-                    it = it,
-                    dragUpState = dragUpState
-                )
-            }
-        }
-//
-    }
-
-    var pos = offsetX.value
-
-    LazyRow(
-
-        modifier = Modifier
-                .offset(0.dp,0.dp)
-                .width(width = width.dp)
-                .height(height = height.dp),
-        state = state,
-        flingBehavior = pagerLazyFlingBehavior(
-                        state,
-                        (lists.homeList?.size ?: 0)
-                    )
-//                .horizontalScroll(
-//                    state,
-//                    flingBehavior = pagerFlingBehavior(
-//                        state,
-//                        (lists.homeList?.size ?: 0)
-//                    )
-//                )
-    ) {
-        currentSelect.value = state.firstVisibleItemIndex
-        lists.homeList?.let { homeList ->
-            if (homeList.size == 0)
-                return@let
-
-            lists.homeList?.forEachIndexed { index, applist ->
-                item {
-                    Column(
-                        modifier = Modifier
-                                .width(width = width.dp)
-                                .height(height = height.dp)
-                                .offset(0.dp, 0.dp)
-                                .pointerInput(0) {
-                                    detectLongPress(
-                                        context = context,
-                                        applist = applist,
-                                        toolList = toolBarList!!,
-                                        homeList = homeList,
-                                        coroutineScope = coroutineScope,
-                                        coroutineAnimScope = coroutineAnimScope,
-                                        dragInfoState = dragInfoState,
-                                        animFinish = animFinish,
-                                        offsetX = offsetX,
-                                        offsetY = offsetY,
-                                        dragUpState = dragUpState,
-                                        state = state
-                                    )
-                                }
-                    ) {
-                            MyBasicColumn() {
-                                applist.forEach {
-                                    IconView(
-                                        it = it,
-                                        dragUpState = dragUpState
-                                    )
-                                }
-                            }
-                    }
-                }
-            }
-        }
-    }
 
     //draw dot
     var dotWidth = 8;
@@ -182,6 +87,84 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
 
 
     // draw toolbar
+    lists.toobarList?.let { applist ->
+        var homelist = homeList?.getOrNull(currentSelect.value) ?: ArrayList()
+        MyBasicColumn(modifier = Modifier
+                .zIndex(zIndex = 0f)
+        )
+        {
+            applist?.forEachIndexed { index, it ->
+                IconView(
+                    it = it,
+                    dragUpState = dragUpState
+                )
+            }
+        }
+//
+    }
+
+    var pos = offsetX.value
+
+    LazyRow(
+
+        modifier = Modifier
+                .offset(0.dp, 0.dp)
+                .width(width = width.dp)
+                .height(height = height.dp)
+                .pointerInput(0) {
+                    detectLongPress(
+                        context = context,
+                        toolList = toolBarList!!,
+                        homeList = homeList,
+                        currentSel = currentSelect,
+                        coroutineScope = coroutineScope,
+                        coroutineAnimScope = coroutineAnimScope,
+                        dragInfoState = dragInfoState,
+                        animFinish = animFinish,
+                        offsetX = offsetX,
+                        offsetY = offsetY,
+                        dragUpState = dragUpState,
+                        state = state
+                    )
+                },
+        state = state,
+        flingBehavior = pagerLazyFlingBehavior(
+            state,
+            (lists.homeList?.size ?: 0)
+        )
+    ) {
+        currentSelect.value = state.firstVisibleItemIndex
+        lists.homeList?.let { homeList ->
+            if (homeList.size == 0)
+                return@let
+
+            lists.homeList?.forEachIndexed { index, applist ->
+                item {
+                    Column(
+                        modifier = Modifier
+                                .width(width = width.dp)
+                                .height(height = height.dp)
+                                .offset(0.dp, 0.dp)
+
+                    ) {
+                        MyBasicColumn() {
+                            applist.forEach {
+                                IconView(
+                                    it = it,
+                                    dragUpState = dragUpState
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
 
     if (dragUpState.value) {
         dragInfoState?.value?.let {

@@ -29,7 +29,8 @@ class ApplicationInfo(
     var iconHeight:Int = 0,
     var dragInfo:ApplicationInfo? =null,
     var showText:Boolean = true,
-    var imageBitmap: AsyncImagePainter? =null
+    var imageBitmap: AsyncImagePainter? =null,
+    var pagePos:Int = 0
 ){
     override fun toString(): String {
         return "${name}: position=${position}"

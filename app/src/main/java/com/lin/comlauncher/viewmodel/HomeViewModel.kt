@@ -59,7 +59,7 @@ class HomeViewModel:ViewModel() {
             var findSet = HashSet<String>()
             var index = 0
             var cellWidth = (dpWidth-LauncherConfig.HOME_DEFAULT_PADDING_LEFT*2)/4
-            var cellMax = 18
+            var cellMax = LauncherConfig.HOME_PAGE_CELL_NUM
             pm.queryIntentActivities(intent, 0)?.forEach continuing@{ resolveInfo ->
                 if (findSet.contains(resolveInfo.activityInfo.packageName))
                     return@continuing
@@ -119,6 +119,7 @@ class HomeViewModel:ViewModel() {
                         mlist.add(cacheList)
                     }
                     ai.cellPos = index
+                    ai.pagePos = mlist.size-1
                     index++;
                 }
                 ai.orignX = ai.posX
