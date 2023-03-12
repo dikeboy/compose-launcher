@@ -29,15 +29,10 @@ object SortUtils {
                 }
             }
             if (isEmpty) {
-                if (currentPos < 0) {
-                    app.orignX = 0
-                    app.orignY = 0
-                } else if (currentPos >= 20) {
-                    app.orignX = 3;
-                    app.orignY = 4
-                } else {
-                    app.orignX = currentPos % 4
-                    app.orignY = currentPos / 4
+                findPosByCell(currentPos)?.let {
+                    app.orignX =it[0]
+                    app.orignY = it[1]
+                    app.cellPos  =currentPos
                 }
             }
         }
@@ -255,6 +250,16 @@ object SortUtils {
 //        LogUtils.e("cell=$cellX  cellY=$cellY de=${posX / (LauncherConfig.HOME_WIDTH/8)}")
 
         return cellX + cellY * 4
+    }
+
+    fun findPosByCell(currentCell:Int): Array<Int>?{
+        if(currentCell>100&&currentCell<0)
+            return null;
+        var cellX = currentCell%4;
+        var cellY = currentCell/4;
+        var posX = cellX*LauncherConfig.HOME_CELL_WIDTH+LauncherConfig.HOME_DEFAULT_PADDING_LEFT;
+        var posY = cellY*LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING;
+        return arrayOf(posX,posY)
     }
 
     fun swapChange(applist: ArrayList<ApplicationInfo>, toolList: ArrayList<ApplicationInfo>, app: ApplicationInfo) {
