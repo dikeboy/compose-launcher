@@ -84,7 +84,11 @@ suspend fun PointerInputScope.detectLongPress(
                                 curX,
                                 curY
                             )
-//                        LogUtils.e("cellIndex=${cellIndex} preCell=${preCell}")
+                        var appInfo = SortUtils.findCurrentActorDp(list =applist,curX,curY)
+                        if(appInfo?.appType==LauncherConfig.CELL_TYPE_FOLD){
+                            continue;
+                        }
+                        LogUtils.e("cellIndex=${curX} preCell=${curY} name=${appInfo?.name} height=${appInfo?.height}")
                         if (preCell == cellIndex && !dragStop) {
                             dragStop = true
                             disPlayTime = 0
@@ -112,7 +116,7 @@ suspend fun PointerInputScope.detectLongPress(
                             }
 
                             if (movePage) {
-                                LogUtils.e("movePage")
+//                                LogUtils.e("movePage")
                                 delay(800)
                                 continue;
                             }
@@ -222,6 +226,11 @@ suspend fun PointerInputScope.detectLongPress(
                     }
 
                 } else {
+                    var appInfo = SortUtils.findCurrentActorDp(list =applist,it.posX,it.posY)
+                    if(appInfo?.appType==LauncherConfig.CELL_TYPE_FOLD&&it.appType==LauncherConfig.CELL_TYPE_APP){
+                        applist.remove(it)
+                        LogUtils.e("remove")
+                    }
                     SortUtils.calculPos(applist, it)
                     offsetX.value = it.posX.dp
                     offsetY.value = it.posY.dp

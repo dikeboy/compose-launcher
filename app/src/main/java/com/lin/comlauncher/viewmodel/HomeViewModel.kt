@@ -7,13 +7,20 @@ import android.content.pm.ResolveInfo
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.graphics.Paint
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.AdaptiveIconDrawable
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
 import com.lin.comlauncher.entity.AppInfoBaseBean
+import com.lin.comlauncher.entity.AppOrignBean
 import com.lin.comlauncher.util.DisplayUtils
 import com.lin.comlauncher.util.LauncherConfig
 import com.lin.comlauncher.util.LauncherUtils
@@ -60,38 +67,72 @@ class HomeViewModel:ViewModel() {
             var index = 0
             var cellWidth = (dpWidth-LauncherConfig.HOME_DEFAULT_PADDING_LEFT*2)/4
             var cellMax = LauncherConfig.HOME_PAGE_CELL_NUM
-            pm.queryIntentActivities(intent, 0)?.forEach continuing@{ resolveInfo ->
-                if (findSet.contains(resolveInfo.activityInfo.packageName))
+            var orignList = mutableListOf<AppOrignBean>()
+            pm.queryIntentActivities(intent, 0)?.forEach{
+                orignList.add(
+                    AppOrignBean(
+                        name = it.loadLabel(pm).toString(),
+                        activityName = it.activityInfo.name,
+                        packageName = it.activityInfo.packageName,
+                        drawable =  it.activityInfo.loadIcon(pm),
+                        appType = LauncherConfig.CELL_TYPE_APP
+                    )
+                )
+            }
+            //add fold
+            orignList.add(17,AppOrignBean(
+                name = "文件夹",
+                packageName = "app1",
+                appType = LauncherConfig.CELL_TYPE_FOLD,
+                drawable = null,
+                activityName = ""
+            ))
+
+            orignList.forEach continuing@{ resolveInfo ->
+                if (findSet.contains(resolveInfo.packageName))
                     return@continuing
 //                if(mlist.size>1){
 //                    return@continuing
 //                }
                 if (index == 10)
-                    findSet.add(resolveInfo.activityInfo.packageName)
+                    findSet.add(resolveInfo.packageName?:"")
                 index %= cellMax;
                 var ai = ApplicationInfo(
-                    name = resolveInfo.loadLabel(pm).toString(),
-                    resolveInfo.resolvePackageName
+                    name = resolveInfo.name,
+                    resolveInfo.packageName
                 )
-                var image = resolveInfo.activityInfo.loadIcon(pm)
-//                Log.e("linlog","package==${resolveInfo.activityInfo.packageName} ${resolveInfo.loadLabel(pm).toString()}")
-                if (image is BitmapDrawable)
-                    ai.icon = image?.bitmap
-                else {
-                    var iWidth = image.intrinsicWidth
-                    var iHeight = image.intrinsicHeight
-                    if (iWidth < 0)
-                        iWidth = 1
-                    if (iHeight < 0)
-                        iHeight < 1
-                    var bmp = Bitmap.createBitmap(iWidth, iHeight, Bitmap.Config.ARGB_8888)
-                    var canvas = Canvas(bmp)
-                    image.setBounds(0, 0, canvas.width, canvas.height)
-                    image.draw(canvas)
-                    ai.icon = bmp
-                }
-                ai.activityName = resolveInfo.activityInfo.name
-                ai.pageName = resolveInfo.activityInfo.packageName
+                ai.appType = resolveInfo.appType
+                if(resolveInfo.appType==LauncherConfig.CELL_TYPE_APP){
+                    ai.icon = getBitmapFromDrawable(resolveInfo.drawable!!)
+                }else if(resolveInfo.appType==LauncherConfig.CELL_TYPE_FOLD){
+                    var child = ApplicationInfo().apply {
+                        var rInfo = orignList.get(0)
+                        name = rInfo.name
+                        pageName = rInfo.packageName;
+                        activityName = rInfo.activityName
+                        icon = getBitmapFromDrawable(rInfo.drawable!!)
+                    }
+                    ai.childs.add(child)
+                    var padding = LauncherConfig.CELL_ICON_WIDTH/4/4
+                    child.icon?.let { icon->
+                        var bmp = Bitmap.createBitmap(LauncherConfig.CELL_ICON_WIDTH,
+                            LauncherConfig.CELL_ICON_WIDTH, Bitmap.Config.ARGB_8888)
+                        var canvas = Canvas(bmp)
+                        var paint = Paint()
+                        var rect =  Rect(0,0,icon.width,icon.height)
+//                        var rounder = 4f;
+//                        canvas.drawRoundRect(RectF(rect),rounder,rounder,paint)
+//                        paint.setXfermode(PorterDuffXfermode(PorterDuff.Mode.SRC_IN))
+                        canvas.drawBitmap(icon, Rect(0,0,icon.width,icon.height),
+                        Rect(padding,padding,LauncherConfig.CELL_ICON_WIDTH/4+padding,
+                            LauncherConfig.CELL_ICON_WIDTH/4+padding),paint)
+                        ai.icon = bmp
+                    }
+             }
+
+                ai.activityName = resolveInfo.activityName
+                ai.pageName = resolveInfo.packageName
+
                 LauncherConfig.HOME_TOOLBAR_START = dpHeight - dpWidth / 4;
                 ai.iconWidth = LauncherConfig.CELL_ICON_WIDTH;
                 ai.iconHeight = LauncherConfig.CELL_ICON_WIDTH;
@@ -134,6 +175,25 @@ class HomeViewModel:ViewModel() {
             Log.e("linlog", "loadA==${mlist.size} toolbar=${mToolBarList.size} time=$userTime")
             infoBaseBean = appInfoBaseBean;
             loadInfoLiveData.postValue(++currentVersion)
+        }
+    }
+
+    fun getBitmapFromDrawable(drawable:Drawable):Bitmap?{
+        var image = drawable!!
+        if (image is BitmapDrawable)
+            return  image?.bitmap
+        else {
+            var iWidth = image.intrinsicWidth
+            var iHeight = image.intrinsicHeight
+            if (iWidth < 0)
+                iWidth = 1
+            if (iHeight < 0)
+                iHeight < 1
+            var bmp = Bitmap.createBitmap(iWidth, iHeight, Bitmap.Config.ARGB_8888)
+            var canvas = Canvas(bmp)
+            image.setBounds(0, 0, canvas.width, canvas.height)
+            image.draw(canvas)
+           return  bmp
         }
     }
 }

@@ -129,10 +129,12 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                 }else{
                     applist.homeList.forEach {
                         it.forEach {
+                            if(it.icon!=null)
                             it.imageBitmap =  rememberAsyncImagePainter(it.icon)
                         }
                     }
                     applist.toobarList.forEach {
+                        if(it.icon!=null)
                         it.imageBitmap =  rememberAsyncImagePainter(it.icon)
                     }
 //                    LogUtils.e("load time ${System.currentTimeMillis()-time1}")

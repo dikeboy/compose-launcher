@@ -17,4 +17,7 @@ object LauncherConfig {
 
     var CELL_POS_HOME_LEFT = -10;
     var CELL_POS_HOME_RIGHT = -11;
+
+    var CELL_TYPE_APP = 0;
+    var CELL_TYPE_FOLD = 1;
 }

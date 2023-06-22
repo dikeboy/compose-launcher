@@ -1,6 +1,7 @@
 package com.lin.comlauncher.entity
 
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.unit.Dp
@@ -30,7 +31,9 @@ class ApplicationInfo(
     var dragInfo:ApplicationInfo? =null,
     var showText:Boolean = true,
     var imageBitmap: AsyncImagePainter? =null,
-    var pagePos:Int = 0
+    var pagePos:Int = 0,
+    var appType:Int = 0,
+    var childs:ArrayList<ApplicationInfo> =ArrayList()
 ){
     override fun toString(): String {
         return "${name}: position=${position}"
@@ -39,7 +42,8 @@ class ApplicationInfo(
 
 class AppInfoBaseBean(
     var homeList:ArrayList<ArrayList<ApplicationInfo>> = ArrayList(),
-    var toobarList:ArrayList<ApplicationInfo> = ArrayList()
+    var toobarList:ArrayList<ApplicationInfo> = ArrayList(),
+    var foldOpen:Boolean = false
 )
 
 data class AppPos(
@@ -52,4 +56,12 @@ data class CellBean(
     var x:Int = 0,
     var y:Int = 0,
     var page:Int = 0
+)
+
+ class AppOrignBean(
+    var name:String?=null,
+    var activityName: String?,
+    var packageName:String?="",
+    var drawable: Drawable?,
+    var appType:Int = 0,
 )

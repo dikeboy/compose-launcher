@@ -10,6 +10,7 @@ import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -49,7 +50,8 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun IconView(it: ApplicationInfo,
-             dragUpState:MutableState<Boolean>
+             dragUpState:MutableState<Boolean>,
+             foldOpen:MutableState<Boolean>
 ) {
     var posX = it.posX
     var posY = it.posY
@@ -65,23 +67,42 @@ fun IconView(it: ApplicationInfo,
                 interactionSource = MutableInteractionSource(),
                 indication = null
             ) {
-                LauncherUtils.startApp(context, it)
+                if(it.appType==LauncherConfig.CELL_TYPE_FOLD){
+                    foldOpen.value = true
+                }else{
+                    LauncherUtils.startApp(context, it)
+                }
             }) {
         IconViewDetail(it,it.showText)
     }
 }
 @Composable
 fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
-    it.imageBitmap?.let { icon ->
-//        Image(
-//            icon.asImageBitmap(), contentDescription = "",
-//            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
-//        )
+    if(it.appType==LauncherConfig.CELL_TYPE_APP){
+        it.imageBitmap?.let { icon ->
         Image(
             painter = icon,
             contentDescription = it.pageName,
-            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp).clip(RoundedCornerShape(8.dp))
+            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
+                    .clip(RoundedCornerShape(8.dp))
         )
+       }
+    }else if(it.appType==LauncherConfig.CELL_TYPE_FOLD){
+
+        Box(
+            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color(0.3f,0.3f,0.3f,0.2f))
+        ){
+            it.imageBitmap?.let { icon ->
+                Image(
+                    painter = icon,
+                    contentDescription = it.pageName,
+                    modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                )
+            }
+        }
 
     }
     if(showText){

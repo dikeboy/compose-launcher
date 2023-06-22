@@ -224,6 +224,25 @@ object SortUtils {
         }
         return null;
     }
+    fun findCurrentActorDp(list: List<ApplicationInfo>, dpX: Int, dpY: Int): ApplicationInfo? {
+        var posX = dpX;
+        var posY = dpY;
+        list.forEach {
+            if (posX >= it.posX && posX < it.posX + it.width && posY >= it.posY && posY < it.posY + it.height) {
+                return it;
+            }
+        }
+        return null;
+    }
+
+    fun findCurrentActorCell(list: List<ApplicationInfo>, cellX: Int, cellY: Int): ApplicationInfo? {
+        list.forEach {
+            if (cellX+cellY*4==it.cellPos ) {
+                return it;
+            }
+        }
+        return null;
+    }
 
     fun findCurrentCell(posX: Int, posY: Int): Int {
         if (posY < LauncherConfig.DEFAULT_TOP_PADDING - LauncherConfig.CELL_ICON_WIDTH / 2) {

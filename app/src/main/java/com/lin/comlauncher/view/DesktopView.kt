@@ -12,10 +12,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerInputScope
@@ -31,6 +33,7 @@ import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
 import com.lin.comlauncher.ui.theme.pagerLazyFlingBehavior
 import com.lin.comlauncher.util.DisplayUtils
+import com.lin.comlauncher.util.LauncherConfig
 import com.lin.comlauncher.util.LogUtils
 import com.lin.comlauncher.viewmodel.HomeViewModel
 
@@ -43,6 +46,7 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
     var height = LocalConfiguration.current.screenHeightDp
     var widthPx = DisplayUtils.dpToPx(width);
     val state = rememberLazyListState()
+    var foldOpenState = remember{ mutableStateOf<Boolean>(false) }
 //    var scrollWidth = remember { mutableStateOf(0) }
     var context = LocalContext.current
 
@@ -96,7 +100,8 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
             applist?.forEachIndexed { index, it ->
                 IconView(
                     it = it,
-                    dragUpState = dragUpState
+                    dragUpState = dragUpState,
+                    foldOpen = foldOpenState
                 )
             }
         }
@@ -151,7 +156,8 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                             applist.forEach {
                                 IconView(
                                     it = it,
-                                    dragUpState = dragUpState
+                                    dragUpState = dragUpState,
+                                    foldOpen = foldOpenState
                                 )
                             }
                         }
@@ -161,9 +167,24 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
         }
     }
 
+    //draw fold
+    if(foldOpenState.value){
+        Box(modifier = Modifier.size(width.dp,height.dp)
+                .clickable {
+                    foldOpenState.value = false
+                })
+                {
+            Row(
+                modifier = Modifier
+                        .size(width.dp - 20.dp, 300.dp)
+                        .offset(10.dp, (height.dp - 300.dp) / 2)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(Color(0.3f, 0.3f, 0.3f, 0.8f))
+            ){
 
-
-
+            }
+        }
+    }
 
 
     if (dragUpState.value) {
