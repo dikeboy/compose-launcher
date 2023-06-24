@@ -94,7 +94,7 @@ fun DefaultPreview() {
     }
 }
 
-@SuppressLint("UnrememberedMutableState")
+@SuppressLint("UnrememberedMutableState", "SuspiciousIndentation")
 @Composable
 fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
     var width = LocalConfiguration.current.screenWidthDp
@@ -131,6 +131,11 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                         it.forEach {
                             if(it.icon!=null)
                             it.imageBitmap =  rememberAsyncImagePainter(it.icon)
+                            if(it.appType==LauncherConfig.CELL_TYPE_FOLD){
+                                it.childs?.forEach {child->
+                                    child.imageBitmap =  rememberAsyncImagePainter(child.icon)
+                                }
+                            }
                         }
                     }
                     applist.toobarList.forEach {

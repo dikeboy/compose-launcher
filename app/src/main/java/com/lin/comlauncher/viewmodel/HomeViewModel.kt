@@ -88,6 +88,7 @@ class HomeViewModel:ViewModel() {
                 activityName = ""
             ))
 
+
             orignList.forEach continuing@{ resolveInfo ->
                 if (findSet.contains(resolveInfo.packageName))
                     return@continuing
@@ -105,29 +106,46 @@ class HomeViewModel:ViewModel() {
                 if(resolveInfo.appType==LauncherConfig.CELL_TYPE_APP){
                     ai.icon = getBitmapFromDrawable(resolveInfo.drawable!!)
                 }else if(resolveInfo.appType==LauncherConfig.CELL_TYPE_FOLD){
-                    var child = ApplicationInfo().apply {
-                        var rInfo = orignList.get(0)
-                        name = rInfo.name
-                        pageName = rInfo.packageName;
-                        activityName = rInfo.activityName
-                        icon = getBitmapFromDrawable(rInfo.drawable!!)
+                    for(i in 0 until 7){
+                        var child = ApplicationInfo().apply {
+                            var rInfo = orignList.get(i)
+                            name = rInfo.name
+                            pageName = rInfo.packageName;
+                            activityName = rInfo.activityName
+                            icon = getBitmapFromDrawable(rInfo.drawable!!)
+                            this.width = cellWidth
+                            this.height = LauncherConfig.HOME_CELL_HEIGHT
+                            iconWidth = LauncherConfig.CELL_ICON_WIDTH
+                            iconHeight = LauncherConfig.CELL_ICON_WIDTH
+                            posX = i%4*cellWidth
+                            posY = i/4*this.height+20
+                        }
+                        ai.childs.add(child)
                     }
-                    ai.childs.add(child)
-                    var padding = LauncherConfig.CELL_ICON_WIDTH/4/4
-                    child.icon?.let { icon->
-                        var bmp = Bitmap.createBitmap(LauncherConfig.CELL_ICON_WIDTH,
-                            LauncherConfig.CELL_ICON_WIDTH, Bitmap.Config.ARGB_8888)
+
+                    var imageWidth = DisplayUtils.dpToPx(LauncherConfig.CELL_ICON_WIDTH)
+                    var padding =imageWidth/4/4
+                    var childWidth = imageWidth/4
+                    if(ai.childs.isNotEmpty()){
+                        var bmp = Bitmap.createBitmap(imageWidth,
+                            imageWidth, Bitmap.Config.ARGB_8888)
                         var canvas = Canvas(bmp)
                         var paint = Paint()
-                        var rect =  Rect(0,0,icon.width,icon.height)
-//                        var rounder = 4f;
-//                        canvas.drawRoundRect(RectF(rect),rounder,rounder,paint)
-//                        paint.setXfermode(PorterDuffXfermode(PorterDuff.Mode.SRC_IN))
-                        canvas.drawBitmap(icon, Rect(0,0,icon.width,icon.height),
-                        Rect(padding,padding,LauncherConfig.CELL_ICON_WIDTH/4+padding,
-                            LauncherConfig.CELL_ICON_WIDTH/4+padding),paint)
+                        paint.isAntiAlias=true
+                        ai.childs.forEachIndexed { index, achild ->
+                            achild.icon?.let {icon->
+                                var childIcon = getRounderBitmap(icon,DisplayUtils.dpToPx(8).toFloat());
+                                var px = padding+(childWidth+padding)*(index%3)
+                                var py = padding+(childWidth+padding)*(index/3)
+                                canvas.drawBitmap(childIcon, Rect(0,0,icon.width,icon.height),
+                                    Rect(px,py,childWidth+px,childWidth+py),paint)
+                            }
+
+                        }
                         ai.icon = bmp
                     }
+
+
              }
 
                 ai.activityName = resolveInfo.activityName
@@ -195,5 +213,19 @@ class HomeViewModel:ViewModel() {
             image.draw(canvas)
            return  bmp
         }
+    }
+
+    fun getRounderBitmap(oldBmp:Bitmap,rounder:Float):Bitmap{
+        var bmp = Bitmap.createBitmap(oldBmp.width,
+            oldBmp.height, Bitmap.Config.ARGB_8888)
+        var canvas = Canvas(bmp)
+        var paint = Paint()
+        var rect =  Rect(0,0,oldBmp.width,oldBmp.height)
+        canvas.drawRoundRect(RectF(rect),rounder,rounder,paint)
+        paint.isAntiAlias=true
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(oldBmp, Rect(0,0,oldBmp.width,oldBmp.height)
+        ,Rect(0,0,oldBmp.width,oldBmp.height),paint)
+        return bmp;
     }
 }

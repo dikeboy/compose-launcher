@@ -51,7 +51,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun IconView(it: ApplicationInfo,
              dragUpState:MutableState<Boolean>,
-             foldOpen:MutableState<Boolean>
+             foldOpen:MutableState<MutableList<ApplicationInfo>>
 ) {
     var posX = it.posX
     var posY = it.posY
@@ -68,7 +68,8 @@ fun IconView(it: ApplicationInfo,
                 indication = null
             ) {
                 if(it.appType==LauncherConfig.CELL_TYPE_FOLD){
-                    foldOpen.value = true
+                    LogUtils.e("CLIDK")
+                    foldOpen.value = it.childs
                 }else{
                     LauncherUtils.startApp(context, it)
                 }

@@ -46,7 +46,7 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
     var height = LocalConfiguration.current.screenHeightDp
     var widthPx = DisplayUtils.dpToPx(width);
     val state = rememberLazyListState()
-    var foldOpenState = remember{ mutableStateOf<Boolean>(false) }
+    var foldOpenState = remember{ mutableStateOf<MutableList<ApplicationInfo>>(mutableListOf()) }
 //    var scrollWidth = remember { mutableStateOf(0) }
     var context = LocalContext.current
 
@@ -168,20 +168,27 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
     }
 
     //draw fold
-    if(foldOpenState.value){
-        Box(modifier = Modifier.size(width.dp,height.dp)
+    if(foldOpenState.value.size>0){
+        Box(modifier = Modifier
+                .size(width.dp, height.dp)
                 .clickable {
-                    foldOpenState.value = false
+                    foldOpenState.value = mutableListOf()
                 })
                 {
-            Row(
+            Box(
                 modifier = Modifier
                         .size(width.dp - 20.dp, 300.dp)
                         .offset(10.dp, (height.dp - 300.dp) / 2)
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color(0.3f, 0.3f, 0.3f, 0.8f))
             ){
-
+                foldOpenState.value.forEach {
+                    IconView(
+                        it = it,
+                        dragUpState = dragUpState,
+                        foldOpen = foldOpenState
+                    )
+                }
             }
         }
     }
