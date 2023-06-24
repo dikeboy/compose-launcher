@@ -236,11 +236,12 @@ suspend fun PointerInputScope.detectLongPress(
                     var appInfo = SortUtils.findCurrentActorDp(list =applist,it.posX,it.posY)
                     LogUtils.e("appInfo=${appInfo?.appType} name=${appInfo?.name}")
                     SortUtils.calculPos(applist, it)
-                    if(appInfo?.appType==LauncherConfig.CELL_TYPE_FOLD&&it.appType==LauncherConfig.CELL_TYPE_APP){
+                    if(appInfo?.appType==LauncherConfig.CELL_TYPE_FOLD&&it.appType==LauncherConfig.CELL_TYPE_APP&&appInfo.childs.size<9){
                         appInfo.childs.add(it)
                         LauncherUtils.createFoldIcon(appInfo)
                         LauncherUtils.changeFoldPosition(appInfo.childs)
                         applist.remove(it)
+                        dragInfoState.value = null;
                         offsetX.value = it.posX.dp
                         offsetY.value = it.posY.dp
                     }else{

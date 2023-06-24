@@ -108,6 +108,8 @@ object LauncherUtils {
             var paint = Paint()
             paint.isAntiAlias=true
             ai.childs.forEachIndexed { index, achild ->
+                if(index>=9)
+                    return@forEachIndexed
                 achild.icon?.let {icon->
                     var childIcon = getRounderBitmap(icon,DisplayUtils.dpToPx(8).toFloat());
                     var px = padding+(childWidth+padding)*(index%3)
