@@ -184,8 +184,9 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version:Mutabl
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color(0.3f, 0.3f, 0.3f, 0.8f))
             ){
-                LogUtils.e("foldSize=${foldOpenState.value.size}")
                 foldOpenState.value.forEach {
+                    LogUtils.e("foldSize=${it.posX}  ${it.posY}")
+
                     IconView(
                         it = it,
                         dragUpState = dragUpState,

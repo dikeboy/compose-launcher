@@ -56,6 +56,7 @@ fun IconView(it: ApplicationInfo,
     var posX = it.posX
     var posY = it.posY
     var context = LocalContext.current
+    it.imageBitmap =  rememberAsyncImagePainter(it.icon)
 
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier

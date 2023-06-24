@@ -235,39 +235,39 @@ suspend fun PointerInputScope.detectLongPress(
                 } else {
                     var appInfo = SortUtils.findCurrentActorDp(list =applist,it.posX,it.posY)
                     LogUtils.e("appInfo=${appInfo?.appType} name=${appInfo?.name}")
+                    SortUtils.calculPos(applist, it)
                     if(appInfo?.appType==LauncherConfig.CELL_TYPE_FOLD&&it.appType==LauncherConfig.CELL_TYPE_APP){
                         appInfo.childs.add(it)
                         LauncherUtils.createFoldIcon(appInfo)
                         LauncherUtils.changeFoldPosition(appInfo.childs)
                         applist.remove(it)
+                        offsetX.value = it.posX.dp
+                        offsetY.value = it.posY.dp
+                    }else{
+                        offsetX.value = it.posX.dp
+                        offsetY.value = it.posY.dp
+                        LogUtils.e("dragEnd ")
+                        dragUpState.value = false
                         coroutineScope.launch {
-                            homeViewModel.loadInfoLiveData.postValue(homeViewModel.currentVersion+1)
-                            LogUtils.e("size=${appInfo.childs.size}")
+                            if (animFinish.value)
+                                delay(200)
+                            DoTranslateAnim(
+                                AppPos(it.posX, it.posY),
+                                AppPos(it.orignX, it.orignY),
+                                200
+                            )
+                            { appPos, velocity ->
+                                it.posX = appPos.x
+                                it.posY = appPos.y
+                                offsetX.value = appPos.x.dp
+                                offsetY.value = appPos.y.dp
+                            }
+                            dragInfoState.value = null;
+                            SortUtils.swapChange(applist = applist, toolList = toolList, app = it)
+                            offsetX.value = 200.dp
                         }
                     }
-                    SortUtils.calculPos(applist, it)
-                    offsetX.value = it.posX.dp
-                    offsetY.value = it.posY.dp
-                    LogUtils.e("dragEnd ")
-                    dragUpState.value = false
-                    coroutineScope.launch {
-                        if (animFinish.value)
-                            delay(200)
-                        DoTranslateAnim(
-                            AppPos(it.posX, it.posY),
-                            AppPos(it.orignX, it.orignY),
-                            200
-                        )
-                        { appPos, velocity ->
-                            it.posX = appPos.x
-                            it.posY = appPos.y
-                            offsetX.value = appPos.x.dp
-                            offsetY.value = appPos.y.dp
-                        }
-                        dragInfoState.value = null;
-                        SortUtils.swapChange(applist = applist, toolList = toolList, app = it)
-                        offsetX.value = 200.dp
-                    }
+
                 }
 
 

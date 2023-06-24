@@ -132,22 +132,6 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                 if(applist.homeList?.size?:0==0){
                     InitView(applist)
                 }else{
-                    applist.homeList.forEach {
-                        it.forEach {
-                            if(it.icon!=null)
-                            it.imageBitmap =  rememberAsyncImagePainter(it.icon)
-                            if(it.appType==LauncherConfig.CELL_TYPE_FOLD){
-                                it.childs?.forEach {child->
-                                    child.imageBitmap =  rememberAsyncImagePainter(child.icon)
-                                }
-                            }
-                        }
-                    }
-                    applist.toobarList.forEach {
-                        if(it.icon!=null)
-                        it.imageBitmap =  rememberAsyncImagePainter(it.icon)
-                    }
-//                    LogUtils.e("load time ${System.currentTimeMillis()-time1}")
                     DesktopView(lists = applist,viewModel = homeViewModel,version=versionInt)
                 }
             }
