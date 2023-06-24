@@ -12,7 +12,13 @@ import androidx.core.content.ContextCompat.startActivity
 import android.content.ComponentName
 
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Paint
 import android.graphics.Point
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffXfermode
+import android.graphics.Rect
+import android.graphics.RectF
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.compose.runtime.Composable
@@ -82,6 +88,51 @@ object LauncherUtils {
         val outPoint = Point()
         defaultDisplay.getRealSize(outPoint)
         return outPoint.y
+    }
+
+    fun changeFoldPosition(list:ArrayList<ApplicationInfo>){
+        list.forEachIndexed { i, appInfo ->
+            appInfo.posX = i%4*appInfo.width
+            appInfo.posY = i/4*appInfo.height+20
+        }
+
+    }
+    fun createFoldIcon(ai:ApplicationInfo){
+        var imageWidth = DisplayUtils.dpToPx(LauncherConfig.CELL_ICON_WIDTH)
+        var padding =imageWidth/4/4
+        var childWidth = imageWidth/4
+        if(ai.childs.isNotEmpty()){
+            var bmp = Bitmap.createBitmap(imageWidth,
+                imageWidth, Bitmap.Config.ARGB_8888)
+            var canvas = Canvas(bmp)
+            var paint = Paint()
+            paint.isAntiAlias=true
+            ai.childs.forEachIndexed { index, achild ->
+                achild.icon?.let {icon->
+                    var childIcon = getRounderBitmap(icon,DisplayUtils.dpToPx(8).toFloat());
+                    var px = padding+(childWidth+padding)*(index%3)
+                    var py = padding+(childWidth+padding)*(index/3)
+                    canvas.drawBitmap(childIcon, Rect(0,0,icon.width,icon.height),
+                        Rect(px,py,childWidth+px,childWidth+py),paint)
+                }
+
+            }
+            ai.icon = bmp
+        }
+    }
+
+    fun getRounderBitmap(oldBmp:Bitmap,rounder:Float):Bitmap{
+        var bmp = Bitmap.createBitmap(oldBmp.width,
+            oldBmp.height, Bitmap.Config.ARGB_8888)
+        var canvas = Canvas(bmp)
+        var paint = Paint()
+        var rect =  Rect(0,0,oldBmp.width,oldBmp.height)
+        canvas.drawRoundRect(RectF(rect),rounder,rounder,paint)
+        paint.isAntiAlias=true
+        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
+        canvas.drawBitmap(oldBmp, Rect(0,0,oldBmp.width,oldBmp.height)
+            , Rect(0,0,oldBmp.width,oldBmp.height),paint)
+        return bmp;
     }
 
 }

@@ -40,7 +40,7 @@ import com.lin.comlauncher.viewmodel.HomeViewModel
 var lastTime = System.currentTimeMillis()
 
 @Composable
-fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
+fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version:MutableState<Int>) {
     var time1 = System.currentTimeMillis()
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
@@ -129,7 +129,9 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                         offsetX = offsetX,
                         offsetY = offsetY,
                         dragUpState = dragUpState,
-                        state = state
+                        state = state,
+                        version = version,
+                        homeViewModel =viewModel
                     )
                 },
         state = state,
@@ -177,11 +179,12 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel) {
                 {
             Box(
                 modifier = Modifier
-                        .size(width.dp - 20.dp, 300.dp)
-                        .offset(10.dp, (height.dp - 300.dp) / 2)
+                        .size(width.dp - 20.dp, 320.dp)
+                        .offset(10.dp, (height.dp - 320.dp) / 2)
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color(0.3f, 0.3f, 0.3f, 0.8f))
             ){
+                LogUtils.e("foldSize=${foldOpenState.value.size}")
                 foldOpenState.value.forEach {
                     IconView(
                         it = it,

@@ -43,7 +43,6 @@ class ApplicationInfo(
 class AppInfoBaseBean(
     var homeList:ArrayList<ArrayList<ApplicationInfo>> = ArrayList(),
     var toobarList:ArrayList<ApplicationInfo> = ArrayList(),
-    var foldOpen:Boolean = false
 )
 
 data class AppPos(

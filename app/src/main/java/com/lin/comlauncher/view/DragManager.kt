@@ -6,10 +6,14 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImagePainter
+import coil.compose.LocalImageLoader
+import coil.compose.rememberAsyncImagePainter
 import com.lin.comlauncher.entity.AppPos
 import com.lin.comlauncher.entity.ApplicationInfo
 import com.lin.comlauncher.util.DisplayUtils
@@ -18,6 +22,7 @@ import com.lin.comlauncher.util.LauncherConfig
 import com.lin.comlauncher.util.LauncherUtils
 import com.lin.comlauncher.util.LogUtils
 import com.lin.comlauncher.util.SortUtils
+import com.lin.comlauncher.viewmodel.HomeViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -34,7 +39,9 @@ suspend fun PointerInputScope.detectLongPress(
     dragInfoState: MutableState<ApplicationInfo?>, animFinish: MutableState<Boolean>,
     offsetX: MutableState<Dp>, offsetY: MutableState<Dp>,
     dragUpState: MutableState<Boolean>,
-    state: LazyListState
+    state: LazyListState,
+    version:MutableState<Int>,
+    homeViewModel: HomeViewModel
 ) {
     detectDragGesturesAfterLongPress(
         onDragStart = { off ->
@@ -227,9 +234,16 @@ suspend fun PointerInputScope.detectLongPress(
 
                 } else {
                     var appInfo = SortUtils.findCurrentActorDp(list =applist,it.posX,it.posY)
+                    LogUtils.e("appInfo=${appInfo?.appType} name=${appInfo?.name}")
                     if(appInfo?.appType==LauncherConfig.CELL_TYPE_FOLD&&it.appType==LauncherConfig.CELL_TYPE_APP){
+                        appInfo.childs.add(it)
+                        LauncherUtils.createFoldIcon(appInfo)
+                        LauncherUtils.changeFoldPosition(appInfo.childs)
                         applist.remove(it)
-                        LogUtils.e("remove")
+                        coroutineScope.launch {
+                            homeViewModel.loadInfoLiveData.postValue(homeViewModel.currentVersion+1)
+                            LogUtils.e("size=${appInfo.childs.size}")
+                        }
                     }
                     SortUtils.calculPos(applist, it)
                     offsetX.value = it.posX.dp

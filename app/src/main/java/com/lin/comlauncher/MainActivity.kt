@@ -124,6 +124,11 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
 //                )
                 var version = versionLiveState.value
                 var time1 = System.currentTimeMillis()
+                var versionInt = remember{
+                    mutableStateOf(0)}
+                var newVersion = version
+
+                LogUtils.e("init view ${newVersion}")
                 if(applist.homeList?.size?:0==0){
                     InitView(applist)
                 }else{
@@ -143,7 +148,7 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
                         it.imageBitmap =  rememberAsyncImagePainter(it.icon)
                     }
 //                    LogUtils.e("load time ${System.currentTimeMillis()-time1}")
-                    DesktopView(lists = applist,viewModel = homeViewModel)
+                    DesktopView(lists = applist,viewModel = homeViewModel,version=versionInt)
                 }
             }
         )

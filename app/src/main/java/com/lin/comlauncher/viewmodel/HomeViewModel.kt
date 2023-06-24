@@ -32,25 +32,26 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 
-class HomeViewModel:ViewModel() {
+class HomeViewModel : ViewModel() {
     var infoBaseBean = AppInfoBaseBean();
 
     val channel = Channel<Int>(UNLIMITED)
 
     var currentVersion = 0;
 
-    var loadInfoLiveData  = MutableLiveData<Int>(currentVersion)
+    var loadInfoLiveData = MutableLiveData<Int>(currentVersion)
 
-    var appVersionLiveData:LiveData<Int> = loadInfoLiveData
+    var appVersionLiveData: LiveData<Int> = loadInfoLiveData
 
 
-    suspend fun sendData(value:Int){
+    suspend fun sendData(value: Int) {
         channel.send(value)
     }
-    var uiState by mutableStateOf<String>("111")
-    private set
 
-    fun loadApp(pm:PackageManager,width:Int,height:Int){
+    var uiState by mutableStateOf<String>("111")
+        private set
+
+    fun loadApp(pm: PackageManager, width: Int, height: Int) {
         viewModelScope.launch(Dispatchers.IO) {
             var startTime = System.currentTimeMillis();
             var dpWidth = DisplayUtils.pxToDp(width)
@@ -65,28 +66,30 @@ class HomeViewModel:ViewModel() {
 
             var findSet = HashSet<String>()
             var index = 0
-            var cellWidth = (dpWidth-LauncherConfig.HOME_DEFAULT_PADDING_LEFT*2)/4
+            var cellWidth = (dpWidth - LauncherConfig.HOME_DEFAULT_PADDING_LEFT * 2) / 4
             var cellMax = LauncherConfig.HOME_PAGE_CELL_NUM
             var orignList = mutableListOf<AppOrignBean>()
-            pm.queryIntentActivities(intent, 0)?.forEach{
+            pm.queryIntentActivities(intent, 0)?.forEach {
                 orignList.add(
                     AppOrignBean(
                         name = it.loadLabel(pm).toString(),
                         activityName = it.activityInfo.name,
                         packageName = it.activityInfo.packageName,
-                        drawable =  it.activityInfo.loadIcon(pm),
+                        drawable = it.activityInfo.loadIcon(pm),
                         appType = LauncherConfig.CELL_TYPE_APP
                     )
                 )
             }
             //add fold
-            orignList.add(17,AppOrignBean(
-                name = "文件夹",
-                packageName = "app1",
-                appType = LauncherConfig.CELL_TYPE_FOLD,
-                drawable = null,
-                activityName = ""
-            ))
+            orignList.add(
+                17, AppOrignBean(
+                    name = "文件夹",
+                    packageName = "app1",
+                    appType = LauncherConfig.CELL_TYPE_FOLD,
+                    drawable = null,
+                    activityName = ""
+                )
+            )
 
 
             orignList.forEach continuing@{ resolveInfo ->
@@ -96,17 +99,18 @@ class HomeViewModel:ViewModel() {
 //                    return@continuing
 //                }
                 if (index == 10)
-                    findSet.add(resolveInfo.packageName?:"")
+                    findSet.add(resolveInfo.packageName ?: "")
                 index %= cellMax;
                 var ai = ApplicationInfo(
                     name = resolveInfo.name,
                     resolveInfo.packageName
                 )
                 ai.appType = resolveInfo.appType
-                if(resolveInfo.appType==LauncherConfig.CELL_TYPE_APP){
+                if (resolveInfo.appType == LauncherConfig.CELL_TYPE_APP) {
                     ai.icon = getBitmapFromDrawable(resolveInfo.drawable!!)
-                }else if(resolveInfo.appType==LauncherConfig.CELL_TYPE_FOLD){
-                    for(i in 0 until 7){
+                } else if (resolveInfo.appType == LauncherConfig.CELL_TYPE_FOLD) {
+                    //add test fold app
+                    for (i in 0 until 7) {
                         var child = ApplicationInfo().apply {
                             var rInfo = orignList.get(i)
                             name = rInfo.name
@@ -117,36 +121,13 @@ class HomeViewModel:ViewModel() {
                             this.height = LauncherConfig.HOME_CELL_HEIGHT
                             iconWidth = LauncherConfig.CELL_ICON_WIDTH
                             iconHeight = LauncherConfig.CELL_ICON_WIDTH
-                            posX = i%4*cellWidth
-                            posY = i/4*this.height+20
                         }
                         ai.childs.add(child)
                     }
+                    LauncherUtils.changeFoldPosition(ai.childs)
+                    LauncherUtils.createFoldIcon(ai)
 
-                    var imageWidth = DisplayUtils.dpToPx(LauncherConfig.CELL_ICON_WIDTH)
-                    var padding =imageWidth/4/4
-                    var childWidth = imageWidth/4
-                    if(ai.childs.isNotEmpty()){
-                        var bmp = Bitmap.createBitmap(imageWidth,
-                            imageWidth, Bitmap.Config.ARGB_8888)
-                        var canvas = Canvas(bmp)
-                        var paint = Paint()
-                        paint.isAntiAlias=true
-                        ai.childs.forEachIndexed { index, achild ->
-                            achild.icon?.let {icon->
-                                var childIcon = getRounderBitmap(icon,DisplayUtils.dpToPx(8).toFloat());
-                                var px = padding+(childWidth+padding)*(index%3)
-                                var py = padding+(childWidth+padding)*(index/3)
-                                canvas.drawBitmap(childIcon, Rect(0,0,icon.width,icon.height),
-                                    Rect(px,py,childWidth+px,childWidth+py),paint)
-                            }
-
-                        }
-                        ai.icon = bmp
-                    }
-
-
-             }
+                }
 
                 ai.activityName = resolveInfo.activityName
                 ai.pageName = resolveInfo.packageName
@@ -158,7 +139,7 @@ class HomeViewModel:ViewModel() {
                     ai.width = cellWidth;
                     ai.height = cellWidth;
                     ai.posY = dpHeight - cellWidth
-                    ai.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT+mToolBarList.size % 4 * cellWidth
+                    ai.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT + mToolBarList.size % 4 * cellWidth
                     ai.position = LauncherConfig.POSITION_TOOLBAR
                     ai.showText = false
                     ai.cellPos = mToolBarList.size;
@@ -166,19 +147,19 @@ class HomeViewModel:ViewModel() {
                 } else {
                     ai.width = cellWidth;
                     ai.height = LauncherConfig.HOME_CELL_HEIGHT
-                    ai.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT+(index % 4) * cellWidth
+                    ai.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT + (index % 4) * cellWidth
                     ai.posY =
                         index / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
                     ai.position = LauncherConfig.POSITION_HOME
                     cacheList.add(ai)
-                    if (index == cellMax-1) {
+                    if (index == cellMax - 1) {
                         cacheList = ArrayList()
                     }
                     if (index == 0) {
                         mlist.add(cacheList)
                     }
                     ai.cellPos = index
-                    ai.pagePos = mlist.size-1
+                    ai.pagePos = mlist.size - 1
                     index++;
                 }
                 ai.orignX = ai.posX
@@ -196,10 +177,10 @@ class HomeViewModel:ViewModel() {
         }
     }
 
-    fun getBitmapFromDrawable(drawable:Drawable):Bitmap?{
+    fun getBitmapFromDrawable(drawable: Drawable): Bitmap? {
         var image = drawable!!
         if (image is BitmapDrawable)
-            return  image?.bitmap
+            return image?.bitmap
         else {
             var iWidth = image.intrinsicWidth
             var iHeight = image.intrinsicHeight
@@ -211,21 +192,9 @@ class HomeViewModel:ViewModel() {
             var canvas = Canvas(bmp)
             image.setBounds(0, 0, canvas.width, canvas.height)
             image.draw(canvas)
-           return  bmp
+            return bmp
         }
     }
 
-    fun getRounderBitmap(oldBmp:Bitmap,rounder:Float):Bitmap{
-        var bmp = Bitmap.createBitmap(oldBmp.width,
-            oldBmp.height, Bitmap.Config.ARGB_8888)
-        var canvas = Canvas(bmp)
-        var paint = Paint()
-        var rect =  Rect(0,0,oldBmp.width,oldBmp.height)
-        canvas.drawRoundRect(RectF(rect),rounder,rounder,paint)
-        paint.isAntiAlias=true
-        paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        canvas.drawBitmap(oldBmp, Rect(0,0,oldBmp.width,oldBmp.height)
-        ,Rect(0,0,oldBmp.width,oldBmp.height),paint)
-        return bmp;
-    }
+
 }
