@@ -235,6 +235,16 @@ object SortUtils {
         return null;
     }
 
+    fun findCurrentActorFolder(list: List<ApplicationInfo>, pixX: Int, pixY: Int): ApplicationInfo? {
+        var posX = DisplayUtils.pxToDp(pixX);
+        var posY = DisplayUtils.pxToDp(pixY)
+        list.forEach {
+            if (posX >= it.posX && posX < it.posX + it.width && posY >= it.posY && posY < it.posY + it.height) {
+                return it;
+            }
+        }
+        return null;
+    }
     fun findCurrentActorCell(list: List<ApplicationInfo>, cellX: Int, cellY: Int): ApplicationInfo? {
         list.forEach {
             if (cellX+cellY*4==it.cellPos ) {
