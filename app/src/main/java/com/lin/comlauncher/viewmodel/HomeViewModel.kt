@@ -121,6 +121,7 @@ class HomeViewModel : ViewModel() {
                             this.height = LauncherConfig.HOME_CELL_HEIGHT
                             iconWidth = LauncherConfig.CELL_ICON_WIDTH
                             iconHeight = LauncherConfig.CELL_ICON_WIDTH
+                            position = LauncherConfig.POSITION_FOLD
                         }
                         ai.childs.add(child)
                     }
