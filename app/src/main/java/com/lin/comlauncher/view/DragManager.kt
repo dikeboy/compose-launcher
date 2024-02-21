@@ -49,15 +49,13 @@ suspend fun PointerInputScope.detectLongPress(
             if(foldOpen.value.size>0){
                 //app in folder
                 var startFolderPos = (LauncherConfig.HOME_HEIGHT.dp - LauncherConfig.HOME_FOLDER_HEIGHT.dp) / 2
-                if(off.y.toDp()>=startFolderPos&&off.y.toDp()<startFolderPos+ LauncherConfig.HOME_FOLDER_HEIGHT.dp){
-                    var startY = off.y.toInt() - startFolderPos.toPx()
-                    dragApp = SortUtils.findCurrentActorFolder(foldOpen.value,off.x.toInt(),startY.toInt())?.also {app->
-                        app.orignX = app.posX
-                        app.orignY = app.posY
-                        app.posFx = app.posX.dp.toPx()
-                        app.posFy = app.posY.dp.toPx()+startFolderPos.toPx()
-                        app.posY = (app.posY+ startFolderPos.value).toInt()
-                    }
+                var startY = off.y.toInt()
+                dragApp = SortUtils.findCurrentActorFolder(foldOpen.value,off.x.toInt(),startY.toInt())?.also {app->
+                    app.orignX = app.posX
+                    app.orignY = app.posY
+                    app.posFx = app.posX.dp.toPx()
+                    app.posFy = app.posY.dp.toPx()+startFolderPos.toPx()
+                    app.posY = (app.posY+ startFolderPos.value).toInt()
                 }
             }else{
                 dragApp = if (off.y.toDp().value >= LauncherConfig.HOME_TOOLBAR_START) {
