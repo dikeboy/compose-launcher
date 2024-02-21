@@ -1,27 +1,17 @@
 package com.lin.comlauncher.view
 
-import android.content.Context
-import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
-import androidx.compose.foundation.gestures.animateScrollBy
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectDragGesturesAfterLongPress
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerInputScope
-import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -30,11 +20,13 @@ import androidx.compose.ui.zIndex
 import com.lin.comlauncher.entity.AppInfoBaseBean
 import com.lin.comlauncher.entity.ApplicationInfo
 import com.lin.comlauncher.ui.theme.MyBasicColumn
-import com.lin.comlauncher.ui.theme.pagerFlingBehavior
 import com.lin.comlauncher.ui.theme.pagerLazyFlingBehavior
 import com.lin.comlauncher.util.DisplayUtils
 import com.lin.comlauncher.util.LauncherConfig
+import com.lin.comlauncher.util.LauncherConfig.HOME_FOLDER_HEIGHT
+import com.lin.comlauncher.util.LauncherUtils
 import com.lin.comlauncher.util.LogUtils
+import com.lin.comlauncher.util.SortUtils
 import com.lin.comlauncher.viewmodel.HomeViewModel
 
 var lastTime = System.currentTimeMillis()
@@ -115,25 +107,7 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version:Mutabl
         modifier = Modifier
                 .offset(0.dp, 0.dp)
                 .width(width = width.dp)
-                .height(height = height.dp)
-                .pointerInput(0) {
-                    detectLongPress(
-                        context = context,
-                        toolList = toolBarList!!,
-                        homeList = homeList,
-                        currentSel = currentSelect,
-                        coroutineScope = coroutineScope,
-                        coroutineAnimScope = coroutineAnimScope,
-                        dragInfoState = dragInfoState,
-                        animFinish = animFinish,
-                        offsetX = offsetX,
-                        offsetY = offsetY,
-                        dragUpState = dragUpState,
-                        state = state,
-                        version = version,
-                        homeViewModel =viewModel
-                    )
-                },
+                .height(height = height.dp),
         state = state,
         flingBehavior = pagerLazyFlingBehavior(
             state,
@@ -156,11 +130,14 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version:Mutabl
                     ) {
                         MyBasicColumn() {
                             applist.forEach {
-                                IconView(
-                                    it = it,
-                                    dragUpState = dragUpState,
-                                    foldOpen = foldOpenState
-                                )
+//                                if(dragInfoState.value!=it){
+                                    IconView(
+                                        it = it,
+                                        dragUpState = dragUpState,
+                                        foldOpen = foldOpenState
+                                    )
+//                                }
+
                             }
                         }
                     }
@@ -179,13 +156,13 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version:Mutabl
                 {
             Box(
                 modifier = Modifier
-                        .size(width.dp - 20.dp, 320.dp)
-                        .offset(10.dp, (height.dp - 320.dp) / 2)
+                        .size(width.dp - 20.dp, HOME_FOLDER_HEIGHT.dp)
+                        .offset(10.dp, (height.dp - HOME_FOLDER_HEIGHT.dp) / 2)
                         .clip(RoundedCornerShape(8.dp))
                         .background(Color(0.3f, 0.3f, 0.3f, 0.8f))
             ){
                 foldOpenState.value.forEach {
-                    LogUtils.e("foldSize=${it.posX}  ${it.posY}")
+//                    LogUtils.e("foldSize=${it.posX}  ${it.posY}")
 
                     IconView(
                         it = it,
@@ -197,7 +174,58 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version:Mutabl
         }
     }
 
+    Box(modifier = Modifier
+        .size(width.dp, height.dp)
+        .pointerInput(0) {
+            detectLongPress(
+                context = context,
+                toolList = toolBarList!!,
+                homeList = homeList,
+                currentSel = currentSelect,
+                coroutineScope = coroutineScope,
+                coroutineAnimScope = coroutineAnimScope,
+                dragInfoState = dragInfoState,
+                animFinish = animFinish,
+                offsetX = offsetX,
+                offsetY = offsetY,
+                dragUpState = dragUpState,
+                state = state,
+                foldOpen = foldOpenState
+            )
 
+        }.pointerInput(Unit){
+            detectTapGestures {off->
+                if(foldOpenState.value.size>0){
+                    var startFolderPos = (height.dp - HOME_FOLDER_HEIGHT.dp) / 2
+                    if(off.y.toDp()<startFolderPos||off.y.toDp()>startFolderPos+ HOME_FOLDER_HEIGHT.dp){
+                        foldOpenState.value =mutableListOf()
+                    }else{
+                        var startY = off.y.toInt() - startFolderPos.toPx()
+                        var currentApp = SortUtils.findCurrentActorFolder(foldOpenState.value,off.x.toInt(),startY.toInt())
+                        if(currentApp!=null){
+                            LauncherUtils.startApp(context, currentApp)
+                        }
+                    }
+                }else{
+                    var applist = homeList.get(currentSelect.value)
+                    var it = if (off.y.toDp().value >= LauncherConfig.HOME_TOOLBAR_START) {
+                        SortUtils.findCurrentActorPix(toolBarList, off.x.toInt(), off.y.toInt())
+                    } else
+                        SortUtils.findCurrentActorPix(applist, off.x.toInt(), off.y.toInt())
+                    if (it == null)
+                        return@detectTapGestures;
+                    else{
+                        if(it.appType==LauncherConfig.CELL_TYPE_FOLD){
+                            LogUtils.e("CLIDK")
+                            foldOpenState.value = it.childs
+                        }else{
+                            LauncherUtils.startApp(context, it)
+                        }
+                    }
+                }
+            }
+        }
+    )
     if (dragUpState.value) {
         dragInfoState?.value?.let {
             Column(
