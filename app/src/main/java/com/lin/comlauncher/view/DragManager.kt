@@ -40,24 +40,41 @@ suspend fun PointerInputScope.detectLongPress(
     offsetX: MutableState<Dp>, offsetY: MutableState<Dp>,
     dragUpState: MutableState<Boolean>,
     state: LazyListState,
-    version:MutableState<Int>,
-    homeViewModel: HomeViewModel
+    foldOpen:MutableState<MutableList<ApplicationInfo>>
 ) {
     detectDragGesturesAfterLongPress(
         onDragStart = { off ->
+            var dragApp:ApplicationInfo?=null
             var applist = homeList.get(currentSel.value)
-            var it = if (off.y.toDp().value >= LauncherConfig.HOME_TOOLBAR_START) {
-                SortUtils.findCurrentActorPix(toolList, off.x.toInt(), off.y.toInt())
-            } else
-                SortUtils.findCurrentActorPix(applist, off.x.toInt(), off.y.toInt())
-            if (it == null)
-                return@detectDragGesturesAfterLongPress;
-
+            if(foldOpen.value.size>0){
+                //app in folder
+                var startFolderPos = (LauncherConfig.HOME_HEIGHT.dp - LauncherConfig.HOME_FOLDER_HEIGHT.dp) / 2
+                if(off.y.toDp()>=startFolderPos&&off.y.toDp()<startFolderPos+ LauncherConfig.HOME_FOLDER_HEIGHT.dp){
+                    var startY = off.y.toInt() - startFolderPos.toPx()
+                    dragApp = SortUtils.findCurrentActorFolder(foldOpen.value,off.x.toInt(),startY.toInt())?.also {app->
+                        app.orignX = app.posX
+                        app.orignY = app.posY
+                        app.posFx = app.posX.dp.toPx()
+                        app.posFy = app.posY.dp.toPx()+startFolderPos.toPx()
+                        app.posY = (app.posY+ startFolderPos.value).toInt()
+                    }
+                }
+            }else{
+                dragApp = if (off.y.toDp().value >= LauncherConfig.HOME_TOOLBAR_START) {
+                    SortUtils.findCurrentActorPix(toolList, off.x.toInt(), off.y.toInt())
+                } else
+                    SortUtils.findCurrentActorPix(applist, off.x.toInt(), off.y.toInt())
+                dragApp?.also {app->
+                    app.orignX = app.posX
+                    app.orignY = app.posY
+                    app.posFx = app.posX.dp.toPx()
+                    app.posFy = app.posY.dp.toPx()
+                }
+            }
+            var it = dragApp ?: return@detectDragGesturesAfterLongPress
             it.isDrag = true
-            it.orignX = it.posX
-            it.orignY = it.posY
-            it.posFx = it.posX.dp.toPx()
-            it.posFy = it.posY.dp.toPx()
+
+
             coroutineScope.launch {
                 LauncherUtils.vibrator(context = context)
             }
@@ -192,6 +209,14 @@ suspend fun PointerInputScope.detectLongPress(
         },
         onDragEnd = {
             dragInfoState.value?.let {
+                if(it.position==LauncherConfig.POSITION_FOLD){
+                    it.isDrag = false
+                    it.posX = it.orignX
+                    it.posY = it.orignY
+                    offsetX.value = 200.dp
+                    dragInfoState.value = null;
+                    return@let;
+                }
                 var applist = homeList.get(currentSel.value)
                 it.isDrag = false
                 LogUtils.e("current=${currentSel.value} pagePos =${it.pagePos}")
@@ -240,6 +265,7 @@ suspend fun PointerInputScope.detectLongPress(
                         appInfo.childs.add(it)
                         LauncherUtils.createFoldIcon(appInfo)
                         LauncherUtils.changeFoldPosition(appInfo.childs)
+                        appInfo.position = LauncherConfig.POSITION_FOLD
                         applist.remove(it)
                         dragInfoState.value = null;
                         offsetX.value = it.posX.dp
