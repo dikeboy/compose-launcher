@@ -181,11 +181,26 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version:Mutabl
                     .size(width.dp - 20.dp, 320.dp)
                     .offset(10.dp, (height.dp - 320.dp) / 2)
                     .clip(RoundedCornerShape(8.dp))
+                    .pointerInput(0) {
+                        detectLongPress(
+                            context = context,
+                            toolList = toolBarList!!,
+                            homeList = homeList,
+                            currentSel = currentSelect,
+                            coroutineScope = coroutineScope,
+                            coroutineAnimScope = coroutineAnimScope,
+                            dragInfoState = dragInfoState,
+                            animFinish = animFinish,
+                            offsetX = offsetX,
+                            offsetY = offsetY,
+                            dragUpState = dragUpState,
+                            state = state,
+                            foldOpenState
+                        )
+                    }
                     .background(Color(0.3f, 0.3f, 0.3f, 0.8f))
             ){
                 foldOpenState.value.forEach {
-                    LogUtils.e("foldSize=${it.posX}  ${it.posY}")
-
                     IconView(
                         it = it,
                         dragUpState = dragUpState,
