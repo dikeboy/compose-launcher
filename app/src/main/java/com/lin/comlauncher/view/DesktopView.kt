@@ -1,6 +1,7 @@
 package com.lin.comlauncher.view
 
 import android.content.Context
+import android.opengl.GLUtils
 import android.view.MotionEvent
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.*
@@ -72,7 +73,6 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version: Mutab
 
     var homeList = lists.homeList
     var toolBarList = lists.toobarList
-
 
     //draw dot
     var dotWidth = 8;
@@ -227,34 +227,21 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version: Mutab
         }
     }
 
+    //app more info
     appManagerState.value?.let {
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
-                    .offset(Math.min(it.startX, width - 150).dp, it.startY.dp - 50.dp)
-                    .size(150.dp, 50.dp)
-                    .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0.3f, 0.3f, 0.3f, 0.8f))
-        ) {
-            Text("Fold", color = Color.White,
-                modifier = Modifier.clickable {
-                    LauncherUtils.addFoldToCurrentPage(homeList.get(currentSelect.value), currentSelect.value)
-                    appManagerState.value = null
-                })
-            Text("Info", color = Color.White,
-                modifier = Modifier.clickable {
-                    LauncherUtils.goAppDetail(context = context, it.applicationInfo)
-                    appManagerState.value = null
-                })
-            Text("Delete", color = Color.White,
-                modifier = Modifier.clickable {
-                    LauncherUtils.goAppDelete(context = context, it.applicationInfo)
-                    appManagerState.value = null
-                })
-//                LogUtils.e("dragUp = ${dragUpState.value}")
-        }
+        MoreInfoView(
+            context = context,
+            homeList = homeList,
+            currentSel = currentSelect,
+            appManagerState = appManagerState,
+            coroutineScope = coroutineScope,
+            coroutineAnimScope = coroutineAnimScope,
+            offsetX = offsetX,
+            offsetY = offsetY
+        )
     }
+
+    //current drag app
     if (dragUpState.value) {
         dragInfoState?.value?.let {
             Column(

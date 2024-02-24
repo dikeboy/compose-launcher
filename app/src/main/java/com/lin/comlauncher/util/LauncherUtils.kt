@@ -73,9 +73,9 @@ object LauncherUtils {
         }
     }
 
-    fun addFoldToCurrentPage(list: ArrayList<ApplicationInfo>, currentPage: Int) {
+    fun addFoldToCurrentPage(list: ArrayList<ApplicationInfo>, currentPage: Int): ApplicationInfo? {
         if (list.size >= LauncherConfig.HOME_PAGE_CELL_MAX_NUM) {
-            return;
+            return null;
         }
         var pos = list.size;
         var appInfo = ApplicationInfo()
@@ -86,12 +86,13 @@ object LauncherUtils {
         appInfo.height = LauncherConfig.HOME_CELL_HEIGHT
         appInfo.iconWidth = LauncherConfig.CELL_ICON_WIDTH
         appInfo.iconHeight = LauncherConfig.CELL_ICON_WIDTH
-        appInfo.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT + (pos % 4) * LauncherConfig.HOME_CELL_WIDTH
-        appInfo.posY =
+        appInfo.orignX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT + (pos % 4) * LauncherConfig.HOME_CELL_WIDTH
+        appInfo.orignY =
             pos / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
         appInfo.cellPos = pos
         appInfo.pagePos = currentPage
         list.add(appInfo);
+        return appInfo;
     }
 
     fun goAppDelete(context: Context, app: ApplicationInfo) {
