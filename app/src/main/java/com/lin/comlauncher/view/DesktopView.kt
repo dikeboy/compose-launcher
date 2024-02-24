@@ -232,11 +232,16 @@ fun DesktopView(lists: AppInfoBaseBean, viewModel: HomeViewModel, version: Mutab
             horizontalArrangement = Arrangement.SpaceEvenly,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                    .offset(it.startX.dp, it.startY.dp - 50.dp)
-                    .size(120.dp, 50.dp)
+                    .offset(Math.min(it.startX, width - 150).dp, it.startY.dp - 50.dp)
+                    .size(150.dp, 50.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .background(Color(0.3f, 0.3f, 0.3f, 0.8f))
         ) {
+            Text("Fold", color = Color.White,
+                modifier = Modifier.clickable {
+                    LauncherUtils.addFoldToCurrentPage(homeList.get(currentSelect.value), currentSelect.value)
+                    appManagerState.value = null
+                })
             Text("Info", color = Color.White,
                 modifier = Modifier.clickable {
                     LauncherUtils.goAppDetail(context = context, it.applicationInfo)

@@ -231,7 +231,7 @@ object SortUtils {
         var posX = dpX;
         var posY = dpY;
         list.forEach {
-            if (posX >= it.posX && posX < it.posX + it.width && posY >= it.posY && posY < it.posY + it.height) {
+            if (!it.isDrag && posX >= it.posX && posX < it.posX + it.width && posY >= it.posY && posY < it.posY + it.height) {
                 return it;
             }
         }

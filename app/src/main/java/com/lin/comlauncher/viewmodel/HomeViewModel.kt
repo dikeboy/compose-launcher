@@ -100,7 +100,7 @@ class HomeViewModel : ViewModel() {
             orignList.add(
                 18, AppOrignBean(
                     name = "SetLauncher",
-                    packageName = "function",
+                    packageName = LauncherConfig.APP_TYPE_FUNCTION,
                     appType = LauncherConfig.CELL_TYPE_APP,
                     drawable = resources.getDrawable(R.drawable.app_setting, null),
                     activityName = LauncherConfig.APP_TYPE_SETTING

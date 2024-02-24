@@ -77,7 +77,7 @@ fun IconView(
                     if (it.isDrag) {
                         return@clickable
                     }
-                    LogUtils.e("CLICK")
+                    LogUtils.e("CLICK childs ${it.childs.size}")
                     if (it.appType == LauncherConfig.CELL_TYPE_FOLD) {
                         foldOpen.value = it.childs
                     } else {

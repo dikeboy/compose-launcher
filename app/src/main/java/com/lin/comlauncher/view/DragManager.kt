@@ -221,13 +221,13 @@ suspend fun PointerInputScope.detectLongPress(
                     return@let;
                 }
                 var applist = homeList.get(currentSel.value)
-                it.isDrag = false
                 LogUtils.e("current=${currentSel.value} pagePos =${it.pagePos}")
                 if (it.pagePos != currentSel.value.toInt()) {
                     var toList = homeList.get(currentSel.value)
                     if (toList.size >= LauncherConfig.HOME_PAGE_CELL_MAX_NUM) {
                         it.posX = it.orignX
                         it.posY = it.orignY
+                        it.isDrag = false
                         return@let;
                     }
 
@@ -264,9 +264,11 @@ suspend fun PointerInputScope.detectLongPress(
                     var appInfo = SortUtils.findCurrentActorDp(list = applist, it.posX, it.posY)
                     LogUtils.e("appInfo=${appInfo?.appType} name=${appInfo?.name}")
                     SortUtils.calculPos(applist, it)
-                    if (appInfo?.appType == LauncherConfig.CELL_TYPE_FOLD && it.appType == LauncherConfig.CELL_TYPE_APP && appInfo.childs.size < 9) {
+                    if (appInfo?.appType == LauncherConfig.CELL_TYPE_FOLD && it.appType == LauncherConfig.CELL_TYPE_APP && appInfo.childs.size < 12) {
                         appInfo.childs.add(it)
-                        LauncherUtils.createFoldIcon(appInfo)
+                        if (appInfo.childs.size <= 9) {
+                            LauncherUtils.createFoldIcon(appInfo)
+                        }
                         LauncherUtils.changeFoldPosition(appInfo.childs)
                         appInfo.position = LauncherConfig.POSITION_FOLD
                         applist.remove(it)
@@ -297,10 +299,8 @@ suspend fun PointerInputScope.detectLongPress(
                             offsetX.value = 200.dp
                         }
                     }
-
                 }
-
-
+                it.isDrag = false
             }
         },
         onDragCancel = {

@@ -31,6 +31,7 @@ import java.lang.Exception
 import android.view.Display
 
 import android.view.WindowManager
+import com.lin.comlauncher.entity.AppOrignBean
 
 
 object LauncherUtils {
@@ -47,6 +48,9 @@ object LauncherUtils {
 
     fun startApp(context: Context, app: ApplicationInfo) {
         try {
+            if (app.pageName == LauncherConfig.APP_TYPE_FUNCTION) {
+                return;
+            }
             val intent = Intent()
             intent.component = ComponentName(app.pageName!!, app.activityName!!)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
@@ -67,7 +71,27 @@ object LauncherUtils {
         } catch (ex: Exception) {
             ex.printStackTrace()
         }
+    }
 
+    fun addFoldToCurrentPage(list: ArrayList<ApplicationInfo>, currentPage: Int) {
+        if (list.size >= LauncherConfig.HOME_PAGE_CELL_MAX_NUM) {
+            return;
+        }
+        var pos = list.size;
+        var appInfo = ApplicationInfo()
+        appInfo.name = "文件夹"
+        appInfo.appType = LauncherConfig.CELL_TYPE_FOLD
+        appInfo.position = LauncherConfig.POSITION_TOOLBAR
+        appInfo.width = LauncherConfig.HOME_CELL_WIDTH
+        appInfo.height = LauncherConfig.HOME_CELL_HEIGHT
+        appInfo.iconWidth = LauncherConfig.CELL_ICON_WIDTH
+        appInfo.iconHeight = LauncherConfig.CELL_ICON_WIDTH
+        appInfo.posX = LauncherConfig.HOME_DEFAULT_PADDING_LEFT + (pos % 4) * LauncherConfig.HOME_CELL_WIDTH
+        appInfo.posY =
+            pos / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
+        appInfo.cellPos = pos
+        appInfo.pagePos = currentPage
+        list.add(appInfo);
     }
 
     fun goAppDelete(context: Context, app: ApplicationInfo) {

@@ -25,6 +25,7 @@ object LauncherConfig {
     var CELL_TYPE_FOLD = 1;
 
     var APP_TYPE_SETTING = "setting";
+    var APP_TYPE_FUNCTION = "function"
 
     var APP_INFO_DRAG_DIS = 60
 
