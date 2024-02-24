@@ -3,14 +3,16 @@ package com.lin.comlauncher.util
 import com.lin.comlauncher.entity.ApplicationInfo
 
 object SortUtils {
-    fun calculLeftPos(toList:ArrayList<ApplicationInfo>,pagePos:Int, app: ApplicationInfo
+    fun calculLeftPos(
+        toList: ArrayList<ApplicationInfo>, pagePos: Int, app: ApplicationInfo
     ) {
-        if(toList.size>=LauncherConfig.HOME_PAGE_CELL_NUM){
+        if (toList.size >= LauncherConfig.HOME_PAGE_CELL_NUM) {
             return;
         }
-        app.orignX = toList.size%4
-        app.orignY = toList.size/4
+        app.orignX = toList.size % 4
+        app.orignY = toList.size / 4
     }
+
     fun calculPos(
         list: ArrayList<ApplicationInfo>, app: ApplicationInfo
     ) {
@@ -30,9 +32,9 @@ object SortUtils {
             }
             if (isEmpty) {
                 findPosByCell(currentPos)?.let {
-                    app.orignX =it[0]
+                    app.orignX = it[0]
                     app.orignY = it[1]
-                    app.cellPos  =currentPos
+                    app.cellPos = currentPos
                 }
             }
         }
@@ -224,6 +226,7 @@ object SortUtils {
         }
         return null;
     }
+
     fun findCurrentActorDp(list: List<ApplicationInfo>, dpX: Int, dpY: Int): ApplicationInfo? {
         var posX = dpX;
         var posY = dpY;
@@ -245,9 +248,10 @@ object SortUtils {
         }
         return null;
     }
+
     fun findCurrentActorCell(list: List<ApplicationInfo>, cellX: Int, cellY: Int): ApplicationInfo? {
         list.forEach {
-            if (cellX+cellY*4==it.cellPos ) {
+            if (cellX + cellY * 4 == it.cellPos) {
                 return it;
             }
         }
@@ -281,14 +285,14 @@ object SortUtils {
         return cellX + cellY * 4
     }
 
-    fun findPosByCell(currentCell:Int): Array<Int>?{
-        if(currentCell>100&&currentCell<0)
+    fun findPosByCell(currentCell: Int): Array<Int>? {
+        if (currentCell > 100 && currentCell < 0)
             return null;
-        var cellX = currentCell%4;
-        var cellY = currentCell/4;
-        var posX = cellX*LauncherConfig.HOME_CELL_WIDTH+LauncherConfig.HOME_DEFAULT_PADDING_LEFT;
-        var posY = cellY*LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING;
-        return arrayOf(posX,posY)
+        var cellX = currentCell % 4;
+        var cellY = currentCell / 4;
+        var posX = cellX * LauncherConfig.HOME_CELL_WIDTH + LauncherConfig.HOME_DEFAULT_PADDING_LEFT;
+        var posY = cellY * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING;
+        return arrayOf(posX, posY)
     }
 
     fun swapChange(applist: ArrayList<ApplicationInfo>, toolList: ArrayList<ApplicationInfo>, app: ApplicationInfo) {

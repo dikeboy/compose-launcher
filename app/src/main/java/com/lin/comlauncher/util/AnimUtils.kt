@@ -10,7 +10,12 @@ import com.lin.comlauncher.entity.AppPos
 class AnimUtils {
 }
 
-suspend fun DoTranslateAnim(startPos:AppPos,endPos:AppPos,duration:Int, block: (value: AppPos, velocity: AppPos) -> Unit){
+suspend fun DoTranslateAnim(
+    startPos: AppPos,
+    endPos: AppPos,
+    duration: Int,
+    block: (value: AppPos, velocity: AppPos) -> Unit
+) {
     animate(
         typeConverter = TwoWayConverter(
             convertToVector = { size: AppPos ->

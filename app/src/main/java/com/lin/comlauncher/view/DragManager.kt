@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImagePainter
 import coil.compose.LocalImageLoader
 import coil.compose.rememberAsyncImagePainter
+import com.lin.comlauncher.entity.AppManagerBean
 import com.lin.comlauncher.entity.AppPos
 import com.lin.comlauncher.entity.ApplicationInfo
 import com.lin.comlauncher.util.DisplayUtils
@@ -40,38 +41,42 @@ suspend fun PointerInputScope.detectLongPress(
     offsetX: MutableState<Dp>, offsetY: MutableState<Dp>,
     dragUpState: MutableState<Boolean>,
     state: LazyListState,
-    foldOpen:MutableState<MutableList<ApplicationInfo>>
+    foldOpen: MutableState<MutableList<ApplicationInfo>>,
+    appManagerState: MutableState<AppManagerBean?>
 ) {
     detectDragGesturesAfterLongPress(
         onDragStart = { off ->
-            var dragApp:ApplicationInfo?=null
+            var dragApp: ApplicationInfo? = null
             var applist = homeList.get(currentSel.value)
-            if(foldOpen.value.size>0){
+            if (foldOpen.value.size > 0) {
                 //app in folder
                 var startFolderPos = (LauncherConfig.HOME_HEIGHT.dp - LauncherConfig.HOME_FOLDER_HEIGHT.dp) / 2
                 var startY = off.y.toInt()
-                dragApp = SortUtils.findCurrentActorFolder(foldOpen.value,off.x.toInt(),startY.toInt())?.also {app->
+                dragApp = SortUtils.findCurrentActorFolder(foldOpen.value, off.x.toInt(), startY.toInt())?.also { app ->
                     app.orignX = app.posX
                     app.orignY = app.posY
                     app.posFx = app.posX.dp.toPx()
-                    app.posFy = app.posY.dp.toPx()+startFolderPos.toPx()
-                    app.posY = (app.posY+ startFolderPos.value).toInt()
+                    app.posFy = app.posY.dp.toPx() + startFolderPos.toPx()
+                    app.posY = (app.posY + startFolderPos.value).toInt()
                 }
-            }else{
+            } else {
                 dragApp = if (off.y.toDp().value >= LauncherConfig.HOME_TOOLBAR_START) {
                     SortUtils.findCurrentActorPix(toolList, off.x.toInt(), off.y.toInt())
                 } else
                     SortUtils.findCurrentActorPix(applist, off.x.toInt(), off.y.toInt())
-                dragApp?.also {app->
+                dragApp?.also { app ->
                     app.orignX = app.posX
                     app.orignY = app.posY
                     app.posFx = app.posX.dp.toPx()
                     app.posFy = app.posY.dp.toPx()
+
+                    //display app manager layout
+                    appManagerState.value = AppManagerBean(app.posX, app.posY, app)
                 }
+
             }
             var it = dragApp ?: return@detectDragGesturesAfterLongPress
             it.isDrag = true
-
 
             coroutineScope.launch {
                 LauncherUtils.vibrator(context = context)
@@ -106,8 +111,8 @@ suspend fun PointerInputScope.detectLongPress(
                                 curX,
                                 curY
                             )
-                        var appInfo = SortUtils.findCurrentActorDp(list =applist,curX,curY)
-                        if(appInfo?.appType==LauncherConfig.CELL_TYPE_FOLD){
+                        var appInfo = SortUtils.findCurrentActorDp(list = applist, curX, curY)
+                        if (appInfo?.appType == LauncherConfig.CELL_TYPE_FOLD) {
                             continue;
                         }
                         LogUtils.e("cellIndex=${curX} preCell=${curY} name=${appInfo?.name} height=${appInfo?.height}")
@@ -207,7 +212,7 @@ suspend fun PointerInputScope.detectLongPress(
         },
         onDragEnd = {
             dragInfoState.value?.let {
-                if(it.position==LauncherConfig.POSITION_FOLD){
+                if (it.position == LauncherConfig.POSITION_FOLD) {
                     it.isDrag = false
                     it.posX = it.orignX
                     it.posY = it.orignY
@@ -218,7 +223,6 @@ suspend fun PointerInputScope.detectLongPress(
                 var applist = homeList.get(currentSel.value)
                 it.isDrag = false
                 LogUtils.e("current=${currentSel.value} pagePos =${it.pagePos}")
-
                 if (it.pagePos != currentSel.value.toInt()) {
                     var toList = homeList.get(currentSel.value)
                     if (toList.size >= LauncherConfig.HOME_PAGE_CELL_MAX_NUM) {
@@ -227,9 +231,10 @@ suspend fun PointerInputScope.detectLongPress(
                         return@let;
                     }
 
-                    it.orignX = toList.size % 4* LauncherConfig.HOME_CELL_WIDTH+LauncherConfig.HOME_DEFAULT_PADDING_LEFT
-                    it.orignY = toList.size / 4* LauncherConfig.HOME_CELL_HEIGHT+LauncherConfig.DEFAULT_TOP_PADDING
-                    it.cellPos  = toList.size;
+                    it.orignX =
+                        toList.size % 4 * LauncherConfig.HOME_CELL_WIDTH + LauncherConfig.HOME_DEFAULT_PADDING_LEFT
+                    it.orignY = toList.size / 4 * LauncherConfig.HOME_CELL_HEIGHT + LauncherConfig.DEFAULT_TOP_PADDING
+                    it.cellPos = toList.size;
 
                     offsetX.value = it.posX.dp
                     offsetY.value = it.posY.dp
@@ -256,10 +261,10 @@ suspend fun PointerInputScope.detectLongPress(
                     }
 
                 } else {
-                    var appInfo = SortUtils.findCurrentActorDp(list =applist,it.posX,it.posY)
+                    var appInfo = SortUtils.findCurrentActorDp(list = applist, it.posX, it.posY)
                     LogUtils.e("appInfo=${appInfo?.appType} name=${appInfo?.name}")
                     SortUtils.calculPos(applist, it)
-                    if(appInfo?.appType==LauncherConfig.CELL_TYPE_FOLD&&it.appType==LauncherConfig.CELL_TYPE_APP&&appInfo.childs.size<9){
+                    if (appInfo?.appType == LauncherConfig.CELL_TYPE_FOLD && it.appType == LauncherConfig.CELL_TYPE_APP && appInfo.childs.size < 9) {
                         appInfo.childs.add(it)
                         LauncherUtils.createFoldIcon(appInfo)
                         LauncherUtils.changeFoldPosition(appInfo.childs)
@@ -268,7 +273,7 @@ suspend fun PointerInputScope.detectLongPress(
                         dragInfoState.value = null;
                         offsetX.value = it.posX.dp
                         offsetY.value = it.posY.dp
-                    }else{
+                    } else {
                         offsetX.value = it.posX.dp
                         offsetY.value = it.posY.dp
                         LogUtils.e("dragEnd ")
@@ -305,6 +310,7 @@ suspend fun PointerInputScope.detectLongPress(
                 LogUtils.e("drag cancle")
                 dragInfoState.value = null
             }
+//            appManagerState.value = null
         }
     ) { change, dragAmount ->
         change.consumeAllChanges()
@@ -317,6 +323,10 @@ suspend fun PointerInputScope.detectLongPress(
 //            LogUtils.e("drag cellX = ${it.posX}  cellY=${it.posY}")
             offsetX.value = dragAmount.x.toDp() + offsetX.value
             offsetY.value = dragAmount.y.toDp() + offsetY.value
+
+            if (Math.abs(it.posX - it.orignX) > LauncherConfig.APP_INFO_DRAG_DIS || Math.abs(it.posY - it.orignY) > LauncherConfig.APP_INFO_DRAG_DIS) {
+                appManagerState.value = null
+            }
         }
 
     }

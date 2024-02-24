@@ -1,5 +1,6 @@
 package com.lin.comlauncher.view
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -48,66 +49,78 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnrememberedMutableInteractionSource")
 @Composable
-fun IconView(it: ApplicationInfo,
-             dragUpState:MutableState<Boolean>,
-             foldOpen:MutableState<MutableList<ApplicationInfo>>
+fun IconView(
+    it: ApplicationInfo,
+    dragUpState: MutableState<Boolean>,
+    foldOpen: MutableState<MutableList<ApplicationInfo>>
 ) {
     var posX = it.posX
     var posY = it.posY
     var context = LocalContext.current
-    it.imageBitmap =  rememberAsyncImagePainter(it.icon)
+    it.imageBitmap = rememberAsyncImagePainter(it.icon)
 
+    if (it.isDrag) {
+//        LogUtils.e("posx=${it.posX}  posy=${it.posY}")
+    }
     Column(horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .size(it.width.dp, it.height.dp)
-            .offset(posX.dp, posY.dp)
-            .alpha(if (it.isDrag) 0f else 1f)
-            .background(Color.Transparent)
-            .clickable(
-                interactionSource = MutableInteractionSource(),
-                indication = null
-            ) {
-                if(it.appType==LauncherConfig.CELL_TYPE_FOLD){
-                    LogUtils.e("CLIDK")
-                    foldOpen.value = it.childs
-                }else{
-                    LauncherUtils.startApp(context, it)
-                }
-            }) {
-        IconViewDetail(it,it.showText)
+                .size(it.width.dp, it.height.dp)
+                .offset(posX.dp, posY.dp)
+                .alpha(if (it.isDrag) 0f else 1f)
+                .background(Color.Transparent)
+                .clickable(
+                    interactionSource = MutableInteractionSource(),
+                    indication = null
+                ) {
+                    if (it.isDrag) {
+                        return@clickable
+                    }
+                    LogUtils.e("CLICK")
+                    if (it.appType == LauncherConfig.CELL_TYPE_FOLD) {
+                        foldOpen.value = it.childs
+                    } else {
+                        LauncherUtils.startApp(context, it)
+                    }
+                }) {
+        IconViewDetail(it, it.showText)
     }
 }
+
 @Composable
-fun IconViewDetail(it: ApplicationInfo,showText: Boolean=true){
-    if(it.appType==LauncherConfig.CELL_TYPE_APP){
+fun IconViewDetail(it: ApplicationInfo, showText: Boolean = true) {
+    if (it.appType == LauncherConfig.CELL_TYPE_APP) {
         it.imageBitmap?.let { icon ->
-        Image(
-            painter = icon,
-            contentDescription = it.pageName,
-            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
-                    .clip(RoundedCornerShape(8.dp))
-        )
-       }
-    }else if(it.appType==LauncherConfig.CELL_TYPE_FOLD){
+            Image(
+                painter = icon,
+                contentDescription = it.pageName,
+                modifier = Modifier
+                        .size(it.iconWidth.dp, it.iconHeight.dp)
+                        .clip(RoundedCornerShape(8.dp))
+            )
+        }
+    } else if (it.appType == LauncherConfig.CELL_TYPE_FOLD) {
 
         Box(
-            modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
+            modifier = Modifier
+                    .size(it.iconWidth.dp, it.iconHeight.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(Color(0.3f,0.3f,0.3f,0.2f))
-        ){
+                    .background(Color(0.3f, 0.3f, 0.3f, 0.2f))
+        ) {
             it.imageBitmap?.let { icon ->
                 Image(
                     painter = icon,
                     contentDescription = it.pageName,
-                    modifier = Modifier.size(it.iconWidth.dp, it.iconHeight.dp)
+                    modifier = Modifier
+                            .size(it.iconWidth.dp, it.iconHeight.dp)
                             .clip(RoundedCornerShape(4.dp))
                 )
             }
         }
 
     }
-    if(showText){
+    if (showText) {
         Text(
             text = it.name ?: "",
             overflow = TextOverflow.Ellipsis,

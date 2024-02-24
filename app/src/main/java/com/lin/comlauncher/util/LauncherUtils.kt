@@ -19,8 +19,10 @@ import android.graphics.PorterDuff
 import android.graphics.PorterDuffXfermode
 import android.graphics.Rect
 import android.graphics.RectF
+import android.net.Uri
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
@@ -31,47 +33,72 @@ import android.view.Display
 import android.view.WindowManager
 
 
-
-
-
 object LauncherUtils {
-    var TOOL_BAR_NAME = arrayListOf<String>("com.android.contacts","com.android.camera","com.android.mms","com.android.browser")
-    fun getCurrentWallPaper(mContext: Context):Bitmap{
+    var TOOL_BAR_NAME =
+        arrayListOf<String>("com.android.contacts", "com.android.camera", "com.android.mms", "com.android.browser")
+
+    fun getCurrentWallPaper(mContext: Context): Bitmap {
         val wallpaperManager = WallpaperManager
-            .getInstance(mContext)
+                .getInstance(mContext)
         val wallpaperDrawable = wallpaperManager.drawable
         val bm = (wallpaperDrawable as BitmapDrawable).bitmap
         return bm;
     }
 
-    fun startApp(context:Context,app:ApplicationInfo){
-        try{
+    fun startApp(context: Context, app: ApplicationInfo) {
+        try {
             val intent = Intent()
-            intent.component =  ComponentName(app.pageName!!, app.activityName!!)
+            intent.component = ComponentName(app.pageName!!, app.activityName!!)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
-        }catch (ex:Exception){
+        } catch (ex: Exception) {
             ex.printStackTrace()
         }
 
     }
-    fun vibrator(context:Context){
+
+    fun goAppDetail(context: Context, app: ApplicationInfo) {
+        try {
+            val intent = Intent()
+            intent.setAction(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.fromParts("package", app.pageName, null))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
+    }
+
+    fun goAppDelete(context: Context, app: ApplicationInfo) {
+        try {
+            val intent = Intent(Intent.ACTION_DELETE)
+            intent.setData(Uri.fromParts("package", app.pageName, null))
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            context.startActivity(intent)
+        } catch (ex: Exception) {
+            ex.printStackTrace()
+        }
+
+    }
+
+    fun vibrator(context: Context) {
         (context.getSystemService(Context.VIBRATOR_SERVICE) as? Vibrator)?.let {
             it.vibrate(70)
         }
     }
 
-    fun isToolBarApplication(packageName:String?):Boolean{
-       return  TOOL_BAR_NAME.contains(packageName)
+    fun isToolBarApplication(packageName: String?): Boolean {
+        return TOOL_BAR_NAME.contains(packageName)
     }
 
-    fun findCurrentCell(posX:Int,posY:Int): CellBean?{
-        if(posY<LauncherConfig.DEFAULT_TOP_PADDING){
+    fun findCurrentCell(posX: Int, posY: Int): CellBean? {
+        if (posY < LauncherConfig.DEFAULT_TOP_PADDING) {
             return null
         }
-        var cellX = posX/LauncherConfig.HOME_CELL_WIDTH
-        var cellY = (posY-LauncherConfig.DEFAULT_TOP_PADDING)/LauncherConfig.HOME_CELL_HEIGHT
-        return CellBean(cellX,cellY)
+        var cellX = posX / LauncherConfig.HOME_CELL_WIDTH
+        var cellY = (posY - LauncherConfig.DEFAULT_TOP_PADDING) / LauncherConfig.HOME_CELL_HEIGHT
+        return CellBean(cellX, cellY)
     }
 
     fun getScreenWidth3(context: Context): Int {
@@ -90,32 +117,37 @@ object LauncherUtils {
         return outPoint.y
     }
 
-    fun changeFoldPosition(list:ArrayList<ApplicationInfo>){
+    fun changeFoldPosition(list: ArrayList<ApplicationInfo>) {
         list.forEachIndexed { i, appInfo ->
-            appInfo.posX = i%4*appInfo.width
-            appInfo.posY = i/4*appInfo.height+20
+            appInfo.posX = i % 4 * appInfo.width
+            appInfo.posY = i / 4 * appInfo.height + 20
         }
 
     }
-    fun createFoldIcon(ai:ApplicationInfo){
+
+    fun createFoldIcon(ai: ApplicationInfo) {
         var imageWidth = DisplayUtils.dpToPx(LauncherConfig.CELL_ICON_WIDTH)
-        var padding =imageWidth/4/4
-        var childWidth = imageWidth/4
-        if(ai.childs.isNotEmpty()){
-            var bmp = Bitmap.createBitmap(imageWidth,
-                imageWidth, Bitmap.Config.ARGB_8888)
+        var padding = imageWidth / 4 / 4
+        var childWidth = imageWidth / 4
+        if (ai.childs.isNotEmpty()) {
+            var bmp = Bitmap.createBitmap(
+                imageWidth,
+                imageWidth, Bitmap.Config.ARGB_8888
+            )
             var canvas = Canvas(bmp)
             var paint = Paint()
-            paint.isAntiAlias=true
+            paint.isAntiAlias = true
             ai.childs.forEachIndexed { index, achild ->
-                if(index>=9)
+                if (index >= 9)
                     return@forEachIndexed
-                achild.icon?.let {icon->
-                    var childIcon = getRounderBitmap(icon,DisplayUtils.dpToPx(8).toFloat());
-                    var px = padding+(childWidth+padding)*(index%3)
-                    var py = padding+(childWidth+padding)*(index/3)
-                    canvas.drawBitmap(childIcon, Rect(0,0,icon.width,icon.height),
-                        Rect(px,py,childWidth+px,childWidth+py),paint)
+                achild.icon?.let { icon ->
+                    var childIcon = getRounderBitmap(icon, DisplayUtils.dpToPx(8).toFloat());
+                    var px = padding + (childWidth + padding) * (index % 3)
+                    var py = padding + (childWidth + padding) * (index / 3)
+                    canvas.drawBitmap(
+                        childIcon, Rect(0, 0, icon.width, icon.height),
+                        Rect(px, py, childWidth + px, childWidth + py), paint
+                    )
                 }
 
             }
@@ -123,17 +155,20 @@ object LauncherUtils {
         }
     }
 
-    fun getRounderBitmap(oldBmp:Bitmap,rounder:Float):Bitmap{
-        var bmp = Bitmap.createBitmap(oldBmp.width,
-            oldBmp.height, Bitmap.Config.ARGB_8888)
+    fun getRounderBitmap(oldBmp: Bitmap, rounder: Float): Bitmap {
+        var bmp = Bitmap.createBitmap(
+            oldBmp.width,
+            oldBmp.height, Bitmap.Config.ARGB_8888
+        )
         var canvas = Canvas(bmp)
         var paint = Paint()
-        var rect =  Rect(0,0,oldBmp.width,oldBmp.height)
-        canvas.drawRoundRect(RectF(rect),rounder,rounder,paint)
-        paint.isAntiAlias=true
+        var rect = Rect(0, 0, oldBmp.width, oldBmp.height)
+        canvas.drawRoundRect(RectF(rect), rounder, rounder, paint)
+        paint.isAntiAlias = true
         paint.xfermode = PorterDuffXfermode(PorterDuff.Mode.SRC_IN)
-        canvas.drawBitmap(oldBmp, Rect(0,0,oldBmp.width,oldBmp.height)
-            , Rect(0,0,oldBmp.width,oldBmp.height),paint)
+        canvas.drawBitmap(
+            oldBmp, Rect(0, 0, oldBmp.width, oldBmp.height), Rect(0, 0, oldBmp.width, oldBmp.height), paint
+        )
         return bmp;
     }
 

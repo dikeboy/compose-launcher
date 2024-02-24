@@ -7,15 +7,15 @@ object LauncherConfig {
     var HOME_CELL_LEFT_PADDING = 20
     var HOME_WIDTH = 0;
     var HOME_HEIGHT = 0;
-    var HOME_TOOLBAR_START= 100
+    var HOME_TOOLBAR_START = 100
     var POSITION_HOME = 1;
     var POSITION_TOOLBAR = 2;
     var POSITION_FOLD = 3;
     var CELL_ICON_WIDTH = 56
     var HOME_DEFAULT_PADDING_LEFT = 10;
     var HOME_DRAG_PAGGING_PADDING = 20;
-    var HOME_PAGE_CELL_NUM  = 18;
-    var HOME_PAGE_CELL_MAX_NUM  = 20;
+    var HOME_PAGE_CELL_NUM = 18;
+    var HOME_PAGE_CELL_MAX_NUM = 20;
     var HOME_FOLDER_HEIGHT = 320;
 
     var CELL_POS_HOME_LEFT = -10;
@@ -23,5 +23,9 @@ object LauncherConfig {
 
     var CELL_TYPE_APP = 0;
     var CELL_TYPE_FOLD = 1;
+
+    var APP_TYPE_SETTING = "setting";
+
+    var APP_INFO_DRAG_DIS = 60
 
 }

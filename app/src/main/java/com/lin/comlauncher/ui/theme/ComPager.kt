@@ -17,52 +17,47 @@ import com.lin.comlauncher.util.DisplayUtils
 import com.lin.comlauncher.util.LauncherConfig
 import com.lin.comlauncher.util.LogUtils
 import kotlin.math.abs
-import kotlin.reflect.KProperty
-
-class ComPager() : FlingBehavior {
-    override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
-        return 0f;
-    }
-}
 
 @Composable
-fun pagerFlingBehavior(state: ScrollState,childNum: Int): FlingBehavior {
+fun pagerFlingBehavior(state: ScrollState, childNum: Int): FlingBehavior {
     val flingSpec = rememberSplineBasedDecay<Float>()
     return remember(flingSpec) {
-        PagerFling(flingSpec, state,childNum = childNum)
+        PagerFling(flingSpec, state, childNum = childNum)
     }
 }
 
-class PagerFling(private val flingDecay: DecayAnimationSpec<Float>,val state:ScrollState,
-                 var childNum:Int) : FlingBehavior {
+class PagerFling(
+    private val flingDecay: DecayAnimationSpec<Float>, val state: ScrollState,
+    var childNum: Int
+) : FlingBehavior {
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
         // come up with the better threshold, but we need it since spline curve gives us NaNs
 //        Log.e("lin","velocity=$initialVelocity,value=${state.value},maxValue=${state.maxValue}")
-        var scrollValue  = state.value.toInt()
+        var scrollValue = state.value.toInt()
         return if (abs(initialVelocity) >= 0f) {
             var velocityX = initialVelocity
-            var childWidth = state.maxValue/(childNum-1)
+            var childWidth = state.maxValue / (childNum - 1)
             var destValue = 0f
-            if(childWidth==0)
+            if (childWidth == 0)
                 return 0f
-            var childLeft = state.value%childWidth;
-            if(abs(velocityX)<500){
-                if(childLeft<childWidth/2){
-                    destValue = scrollValue.toFloat()-childLeft
-                }else{
-                    destValue = scrollValue.toFloat()-childLeft+childWidth;
+            var childLeft = state.value % childWidth;
+            if (abs(velocityX) < 500) {
+                if (childLeft < childWidth / 2) {
+                    destValue = scrollValue.toFloat() - childLeft
+                } else {
+                    destValue = scrollValue.toFloat() - childLeft + childWidth;
                 }
-            }else{
-                if(velocityX<0)
-                    destValue = scrollValue.toFloat()-childLeft
+            } else {
+                if (velocityX < 0)
+                    destValue = scrollValue.toFloat() - childLeft
                 else
-                    destValue = scrollValue.toFloat()-childLeft+childWidth;
+                    destValue = scrollValue.toFloat() - childLeft + childWidth;
             }
 
             var velocityLeft = initialVelocity
             var startPos = scrollValue
-            animate(scrollValue.toFloat(),destValue,0f,tween(300)){value, velocity ->
-                velocityLeft = value-startPos
+            animate(scrollValue.toFloat(), destValue, 0f, tween(300)) { value, velocity ->
+                velocityLeft = value - startPos
                 scrollBy(velocityLeft)
                 startPos = value.toInt()
             }
@@ -74,44 +69,51 @@ class PagerFling(private val flingDecay: DecayAnimationSpec<Float>,val state:Scr
 }
 
 @Composable
-fun pagerLazyFlingBehavior(state: LazyListState,childNum: Int): FlingBehavior {
+fun pagerLazyFlingBehavior(state: LazyListState, childNum: Int): FlingBehavior {
     val flingSpec = rememberSplineBasedDecay<Float>()
     return remember(flingSpec) {
-        PagerLazyFling(flingSpec, state,childNum = childNum)
+        PagerLazyFling(flingSpec, state, childNum = childNum)
     }
 }
 
-class PagerLazyFling(private val flingDecay: DecayAnimationSpec<Float>,val state:LazyListState,
-                 var childNum:Int) : FlingBehavior {
+class PagerLazyFling(
+    private val flingDecay: DecayAnimationSpec<Float>, val state: LazyListState,
+    var childNum: Int
+) : FlingBehavior {
     override suspend fun ScrollScope.performFling(initialVelocity: Float): Float {
         // come up with the better threshold, but we need it since spline curve gives us NaNs
 //        Log.e("lin","velocity=$initialVelocity,value=${state.value},maxValue=${state.maxValue}")
-        var scrollValue  = state.firstVisibleItemScrollOffset
+        var scrollValue = state.firstVisibleItemScrollOffset
         return if (abs(initialVelocity) >= 0f) {
             var velocityX = initialVelocity
             var childWidth = state.layoutInfo.viewportSize.width
             var destValue = 0f
-            if(childWidth==0)
+            if (childWidth == 0)
                 return 0f
-            var childLeft = scrollValue%childWidth;
-            if(abs(velocityX)<500){
-                if(childLeft<childWidth/2){
-                    destValue = scrollValue.toFloat()-childLeft
-                }else{
-                    destValue = scrollValue.toFloat()-childLeft+childWidth;
+            var childLeft = scrollValue % childWidth;
+            if (abs(velocityX) < 500) {
+                if (childLeft < childWidth / 2) {
+                    destValue = scrollValue.toFloat() - childLeft
+                } else {
+                    destValue = scrollValue.toFloat() - childLeft + childWidth;
                 }
-            }else{
-                if(velocityX<0)
-                    destValue = scrollValue.toFloat()-childLeft
+            } else {
+                if (velocityX < 0)
+                    destValue = scrollValue.toFloat() - childLeft
                 else
-                    destValue = scrollValue.toFloat()-childLeft+childWidth;
+                    destValue = scrollValue.toFloat() - childLeft + childWidth;
             }
 
 //            LogUtils.e("scrollOffset = ${state.firstVisibleItemScrollOffset} ${destValue} width=${childWidth}")
             var velocityLeft = 0f
             var startPos = scrollValue.toFloat()
-            animate(scrollValue.toFloat(),destValue,0f,tween(300, easing = LinearOutSlowInEasing)){value, velocity ->
-                velocityLeft = value-startPos
+            animate(
+                scrollValue.toFloat(),
+                destValue,
+                0f,
+                tween(300, easing = LinearOutSlowInEasing)
+            ) { value, velocity ->
+                velocityLeft = value - startPos
                 scrollBy(velocityLeft)
                 startPos = value
             }

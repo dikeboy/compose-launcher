@@ -2,6 +2,7 @@ package com.lin.comlauncher
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -50,10 +51,16 @@ class MainActivity : ComponentActivity() {
             ComposeLauncherTheme {
                 Surface(color = MaterialTheme.colors.background) {
 //                    SwipeableSample(homeViewModel)
-                    var height = DisplayUtils.getScreenHeightCanUse(this)+ImmersionBar.getStatusBarHeight(this)
+                    var height = DisplayUtils.getScreenHeightCanUse(this) + ImmersionBar.getStatusBarHeight(this)
                     LocalConfiguration.current.screenHeightDp = DisplayUtils.pxToDp(height)
-
-                    createView(homeViewModel){
+                    LogUtils.e(
+                        "height=${LocalConfiguration.current.screenWidthDp}  width=${
+                            DisplayUtils.pxToDp(
+                                DisplayUtils.getRealWidth(this)
+                            )
+                        }"
+                    )
+                    createView(homeViewModel) {
 
                     }
 //                    TestView()
@@ -61,17 +68,18 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    fun initView(){
+
+    fun initView() {
         window.navigationBarColor = android.graphics.Color.TRANSPARENT
 
-        var arrayPermission =if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                 arrayOf(Manifest.permission.QUERY_ALL_PACKAGES,Manifest.permission.VIBRATE)
-            else arrayOf(Manifest.permission.VIBRATE)
-        permissionManager.checkPermission(this,arrayPermission){
+        var arrayPermission = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+            arrayOf(Manifest.permission.QUERY_ALL_PACKAGES, Manifest.permission.VIBRATE)
+        else arrayOf(Manifest.permission.VIBRATE)
+        permissionManager.checkPermission(this, arrayPermission) {
             var width = resources.displayMetrics.widthPixels
             var height = LauncherUtils.getScreenHeight3(this)
 //            var height = resources.displayMetrics.heightPixels+ImmersionBar.getStatusBarHeight(this)
-            homeViewModel.loadApp(packageManager,width =width,height = height)
+            homeViewModel.loadApp(packageManager, width = width, height = height, resources)
         }
 
     }
@@ -90,13 +98,13 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun DefaultPreview() {
     createView(homeViewModel = HomeViewModel()) {
-        Log.e("linlog","test")
+        Log.e("linlog", "test")
     }
 }
 
 @SuppressLint("UnrememberedMutableState", "SuspiciousIndentation")
 @Composable
-fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
+fun createView(homeViewModel: HomeViewModel, onClick: () -> Unit) {
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
     LauncherConfig.HOME_WIDTH = width;
@@ -109,10 +117,15 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
     ComposeLauncherTheme {
         Scaffold(
             content = { padding ->
-                Image(painter = painterResource(id = R.drawable.wall_paper),contentDescription="", modifier = Modifier.padding(padding)
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
-                contentScale = ContentScale.Crop)
+                Image(
+                    painter = painterResource(id = R.drawable.wall_paper),
+                    contentDescription = "",
+                    modifier = Modifier
+                            .padding(padding)
+                            .fillMaxHeight()
+                            .fillMaxWidth(),
+                    contentScale = ContentScale.Crop
+                )
 
 //                Image(
 //                    painter = rememberAsyncImagePainter( R.drawable.wall_paper),
@@ -124,15 +137,16 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
 //                )
                 var version = versionLiveState.value
                 var time1 = System.currentTimeMillis()
-                var versionInt = remember{
-                    mutableStateOf(0)}
+                var versionInt = remember {
+                    mutableStateOf(0)
+                }
                 var newVersion = version
 
                 LogUtils.e("init view ${newVersion}")
-                if(applist.homeList?.size?:0==0){
+                if (applist.homeList?.size ?: 0 == 0) {
                     InitView(applist)
-                }else{
-                    DesktopView(lists = applist,viewModel = homeViewModel,version=versionInt)
+                } else {
+                    DesktopView(lists = applist, viewModel = homeViewModel, version = versionInt)
                 }
             }
         )
@@ -141,7 +155,7 @@ fun createView(homeViewModel: HomeViewModel,onClick: () -> Unit) {
 }
 
 @Composable
-fun TestView(){
+fun TestView() {
     LogUtils.e("change 2");
     Column() {
         LogUtils.e("change 0");
@@ -149,13 +163,15 @@ fun TestView(){
             LogUtils.e("change 1");
             var dragState = remember { mutableStateOf(0.dp) }
 
-            Column(modifier = Modifier
-                .fillMaxHeight()
-                .fillMaxWidth()
-                .offset(100.dp, 200.dp)
-                .background(Color.White)
-                .padding(20.dp),
-                verticalArrangement= Arrangement.Center) {
+            Column(
+                modifier = Modifier
+                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .offset(100.dp, 200.dp)
+                        .background(Color.White)
+                        .padding(20.dp),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     "Button ${dragState.value}",
                     color = Color.Black
@@ -170,13 +186,15 @@ fun TestView(){
 
 @Composable
 fun TestButtonView(dragState: MutableState<Dp>) {
-    Button(onClick = {
-        dragState.value =100.dp
-        LogUtils.e("dp = $dragState")
-    },
+    Button(
+        onClick = {
+            dragState.value = 100.dp
+            LogUtils.e("dp = $dragState")
+        },
         Modifier
-            .offset(100.dp, 200.dp)
-            .size(100.dp, 100.dp)) {
+                .offset(100.dp, 200.dp)
+                .size(100.dp, 100.dp)
+    ) {
         Text(text = "Click Me")
     }
 }

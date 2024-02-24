@@ -1,10 +1,13 @@
 package com.lin.comlauncher.viewmodel
 
+import android.content.Context
 import android.content.pm.PackageManager
 import com.lin.comlauncher.entity.ApplicationInfo
 import android.content.pm.ResolveInfo
 
 import android.content.Intent
+import android.content.res.Resources
+import android.content.res.Resources.Theme
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.Paint
@@ -19,6 +22,7 @@ import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.*
+import com.lin.comlauncher.R
 import com.lin.comlauncher.entity.AppInfoBaseBean
 import com.lin.comlauncher.entity.AppOrignBean
 import com.lin.comlauncher.util.DisplayUtils
@@ -51,11 +55,12 @@ class HomeViewModel : ViewModel() {
     var uiState by mutableStateOf<String>("111")
         private set
 
-    fun loadApp(pm: PackageManager, width: Int, height: Int) {
+    fun loadApp(pm: PackageManager, width: Int, height: Int, resources: Resources) {
         viewModelScope.launch(Dispatchers.IO) {
             var startTime = System.currentTimeMillis();
             var dpWidth = DisplayUtils.pxToDp(width)
             var dpHeight = DisplayUtils.pxToDp(height)
+            LauncherConfig.APP_INFO_DRAG_DIS = DisplayUtils.dpToPx(10)
             val intent = Intent(Intent.ACTION_MAIN, null)
             intent.addCategory(Intent.CATEGORY_LAUNCHER)
             var appInfoBaseBean = AppInfoBaseBean()
@@ -88,6 +93,17 @@ class HomeViewModel : ViewModel() {
                     appType = LauncherConfig.CELL_TYPE_FOLD,
                     drawable = null,
                     activityName = ""
+                )
+            )
+
+            //add setting
+            orignList.add(
+                18, AppOrignBean(
+                    name = "SetLauncher",
+                    packageName = "function",
+                    appType = LauncherConfig.CELL_TYPE_APP,
+                    drawable = resources.getDrawable(R.drawable.app_setting, null),
+                    activityName = LauncherConfig.APP_TYPE_SETTING
                 )
             )
 

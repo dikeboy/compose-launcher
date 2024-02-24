@@ -18,23 +18,25 @@ import com.lin.comlauncher.ui.theme.MyBasicColumn
 import com.lin.comlauncher.ui.theme.pagerFlingBehavior
 
 @Composable
-fun InitView(lists: AppInfoBaseBean){
+fun InitView(lists: AppInfoBaseBean) {
 
     var width = LocalConfiguration.current.screenWidthDp
     var height = LocalConfiguration.current.screenHeightDp
     val state = rememberScrollState()
 
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .fillMaxHeight()
-        .horizontalScroll(
-            state,
-            flingBehavior = pagerFlingBehavior(
-                state,0
-            )
-        ),
+    Row(
+        modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+                .horizontalScroll(
+                    state,
+                    flingBehavior = pagerFlingBehavior(
+                        state, 0
+                    )
+                ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center) {
+        horizontalArrangement = Arrangement.Center
+    ) {
         Text(text = "init...")
     }
 

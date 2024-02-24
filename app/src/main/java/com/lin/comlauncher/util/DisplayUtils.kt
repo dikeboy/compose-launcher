@@ -12,22 +12,32 @@ import android.view.ViewConfiguration
 import com.gyf.immersionbar.ImmersionBar
 
 object DisplayUtils {
-    fun dpToPx(dp:Int):Int{
+    fun dpToPx(dp: Int): Int {
         return (dp * Resources.getSystem().displayMetrics.density).toInt();
 
     }
-    fun pxToDp(px:Int):Int{
-        return  (px / Resources.getSystem().displayMetrics.density).toInt();
+
+    fun pxToDp(px: Int): Int {
+        return (px / Resources.getSystem().displayMetrics.density).toInt();
 
     }
 
-    fun getRealHeight(context:Context): Int {
-        if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.R){
+    fun getRealHeight(context: Context): Int {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val dm = DisplayMetrics()
             context.display?.getRealMetrics(dm)
             return dm.heightPixels
         }
         return context.resources.displayMetrics.heightPixels;
+    }
+
+    fun getRealWidth(context: Context): Int {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            val dm = DisplayMetrics()
+            context.display?.getRealMetrics(dm)
+            return dm.widthPixels
+        }
+        return context.resources.displayMetrics.widthPixels;
     }
 
     fun getScreenHeightCanUse(context: Context): Int {
@@ -53,9 +63,9 @@ object DisplayUtils {
         } else 0
     }
 
-    fun getDisplayHeight(context:Context):Int{
-        var totalHeight = getRealHeight(context =context)
-        if(checkDeviceHasNavigationBar(context)){
+    fun getDisplayHeight(context: Context): Int {
+        var totalHeight = getRealHeight(context = context)
+        if (checkDeviceHasNavigationBar(context)) {
             return totalHeight - getNavigationBarHeight(context)
         }
         return totalHeight
@@ -64,9 +74,9 @@ object DisplayUtils {
     @SuppressLint("NewApi")
     fun checkDeviceHasNavigationBar(activity: Context?): Boolean {
         val hasMenuKey = ViewConfiguration.get(activity!!)
-            .hasPermanentMenuKey()
+                .hasPermanentMenuKey()
         val hasBackKey = KeyCharacterMap
-            .deviceHasKey(KeyEvent.KEYCODE_BACK)
+                .deviceHasKey(KeyEvent.KEYCODE_BACK)
         return !hasMenuKey && !hasBackKey
     }
 
