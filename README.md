@@ -1,4 +1,5 @@
 # comp-launcher
+it will move to <a href="https://github.com/dikeboy/compose-multiplatform-launcher">compose-multiplatform-launcher</a>
 A android launcher write all with jetpack compose and kotlin
 
 compose drag animation
